@@ -95,6 +95,7 @@ A.Y_id,A.U_id FROM Px_price A,Products P WHERE a.Y_id IN
  ) AS PXMD
 WHERE P.Product_ID = PXMD.P_id AND P.U_ID = PXMD.U_id AND PXMD.retailPrice > 0 	--AND ST.p_id = P.Product_ID 
 AND P.DELETED = 0 AND P.Isdir = 0
+AND P.Product_ID NOT IN (SELECT DISTINCT P_id FROM Px_price WHERE VipPrice > 0)	--凡是有会员价商品平时不参与98折，按普通会员价执行
 AND P.Parent_id NOT LIKE '000004000001%' AND P.Product_ID NOT IN (8000,8001,8456,19072) AND P.name NOT LIKE '%瑾植%'
 ORDER BY MLL DESC
 
