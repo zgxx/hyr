@@ -1,5 +1,5 @@
-
---æå–æ•°æ®æ’å…¥ä¸´æ—¶è¡¨
+--ansi±àÂë´æ´¢ 
+--ÌáÈ¡Êı¾İ²åÈëÁÙÊ±±í
 IF exists (select * from tempdb..sysobjects where id = object_id('tempdb..##CxTemp'))
 DROP table [dbo].[##CxTemp]
 GO
@@ -11,118 +11,118 @@ CREATE TABLE [dbo].[##CxTemp](
 	[costp] NUMERIC(18,4) NOT NULL,
 	[profit_rate] NUMERIC(18,4) NOT NULL,
 	[Class] NUMERIC(18,2) NOT NULL,
-	[type] INT NOT NULL,		--1ä»£è¡¨ä¼šå‘˜æ—¥æ—¶ï¼Œ0ä»£è¡¨éä¼šå‘˜æ—¥æ—¶
+	[type] INT NOT NULL,		--1´ú±í»áÔ±ÈÕÊ±£¬0´ú±í·Ç»áÔ±ÈÕÊ±
 )
 
 /*
 SELECT * FROM ##CxTemp
 
-SELECT Class AS æ‰“æŠ˜åŠ›åº¦,CASE WHEN type = 0 THEN 'éä¼šå‘˜æ—¥' ELSE 'ä¼šå‘˜æ—¥' END AS ç±»åˆ«,
-CASE WHEN profit_rate < 0 THEN 'è´Ÿæ¯›åˆ©æ•°é‡' ELSE '' END AS ç›ˆäº,COUNT(1) AS æ‰€æœ‰æ•°é‡ FROM ##CxTemp 
-GROUP BY Class,type,CASE WHEN profit_rate < 0 THEN 'è´Ÿæ¯›åˆ©æ•°é‡' ELSE '' END
-ORDER BY ç±»åˆ«,æ‰“æŠ˜åŠ›åº¦,ç›ˆäº DESC
+SELECT Class AS ´òÕÛÁ¦¶È,CASE WHEN type = 0 THEN '·Ç»áÔ±ÈÕ' ELSE '»áÔ±ÈÕ' END AS Àà±ğ,
+CASE WHEN profit_rate < 0 THEN '¸ºÃ«ÀûÊıÁ¿' ELSE '' END AS Ó¯¿÷,COUNT(1) AS ËùÓĞÊıÁ¿ FROM ##CxTemp 
+GROUP BY Class,type,CASE WHEN profit_rate < 0 THEN '¸ºÃ«ÀûÊıÁ¿' ELSE '' END
+ORDER BY Àà±ğ,´òÕÛÁ¦¶È,Ó¯¿÷ DESC
 
-SELECT C.Class AS æ‰“æŠ˜åŠ›åº¦,CASE WHEN C.type = 0 THEN 'éä¼šå‘˜æ—¥' ELSE 'ä¼šå‘˜æ—¥' END AS ç±»åˆ«,
-CASE WHEN C.profit_rate < 0 THEN 'è´Ÿæ¯›åˆ©æ•°é‡' ELSE '' END AS ç›ˆäº,COUNT(1) AS æœ‰åº“å­˜æ•°é‡ FROM ##CxTemp C,
-(SELECT p_id,SUM(1) AS kc FROM s_storehouse GROUP BY p_id) ST  --æ€»åº“å­˜å•†å“æ•°
+SELECT C.Class AS ´òÕÛÁ¦¶È,CASE WHEN C.type = 0 THEN '·Ç»áÔ±ÈÕ' ELSE '»áÔ±ÈÕ' END AS Àà±ğ,
+CASE WHEN C.profit_rate < 0 THEN '¸ºÃ«ÀûÊıÁ¿' ELSE '' END AS Ó¯¿÷,COUNT(1) AS ÓĞ¿â´æÊıÁ¿ FROM ##CxTemp C,
+(SELECT p_id,SUM(1) AS kc FROM s_storehouse GROUP BY p_id) ST  --×Ü¿â´æÉÌÆ·Êı
  WHERE C.P_ID = ST.p_id
-GROUP BY C.Class,C.type,CASE WHEN C.profit_rate < 0 THEN 'è´Ÿæ¯›åˆ©æ•°é‡' ELSE '' END
-ORDER BY ç±»åˆ«,æ‰“æŠ˜åŠ›åº¦,ç›ˆäº DESC
+GROUP BY C.Class,C.type,CASE WHEN C.profit_rate < 0 THEN '¸ºÃ«ÀûÊıÁ¿' ELSE '' END
+ORDER BY Àà±ğ,´òÕÛÁ¦¶È,Ó¯¿÷ DESC
 */
 
 
 INSERT INTO ##CxTemp
---ä¼šå‘˜æ—¥,éå¤„æ–¹è¯85æŠ˜çš„å“ç§
+--»áÔ±ÈÕ,·Ç´¦·½Ò©85ÕÛµÄÆ·ÖÖ
 SELECT DISTINCT P.Product_ID AS P_ID,P.u_id,PXMD.retailPrice, PXMD.costp,CONVERT(NUMERIC(18,4),(PXMD.retailPrice -costp)/PXMD.retailPrice) AS MLL,0.85 AS CLASS,1 AS type
 FROM Products P,--s_storehouse ST,
 ( SELECT A.P_id,A.retailPrice,CASE WHEN A.PrePrice1 = 0 THEN A.RecBuyPrice ELSE A.PrePrice1 END AS costp,	--,A.PrePrice1,A.RecBuyPrice
 A.Y_id,A.U_id FROM Px_price A,Products P WHERE a.Y_id IN 
 	 (SELECT max(B.Y_id) AS Y_id FROM Px_price AS B WHERE A.P_id = B.p_id ) AND P.U_ID = A.U_id AND P.Product_ID = A.P_id
 	 AND A.retailPrice <> 0 AND A.PrePrice1+A.RecBuyPrice <> 0
-	 --é—¨åº—ä»·æ ¼ä½“ç³»ï¼Œå¦‚æœé…é€ä»·æ²¡æœ‰åˆ™ç”¨æœ€è¿‘è¿›ä»·
+	 --ÃÅµê¼Û¸ñÌåÏµ£¬Èç¹ûÅäËÍ¼ÛÃ»ÓĞÔòÓÃ×î½ü½ø¼Û
  ) AS PXMD
 WHERE P.Product_ID = PXMD.P_id AND P.U_ID = PXMD.U_id AND PXMD.retailPrice > 0 	--AND ST.p_id = P.Product_ID 
-AND P.DELETED = 0 AND P.Isdir = 0 AND P.Product_ID NOT IN (8000,8001,8456,19072)	--å››ä¸ªæ‹†é›¶å‰”é™¤
-AND P.Parent_id NOT LIKE '000004000001%'	--å‰”é™¤ä¸­è¯é¥®ç‰‡
+AND P.DELETED = 0 AND P.Isdir = 0 AND P.Product_ID NOT IN (8000,8001,8456,19072)	--ËÄ¸ö²ğÁãÌŞ³ı
+AND P.Parent_id NOT LIKE '000004000001%'	--ÌŞ³ıÖĞÒ©ÒûÆ¬
 AND P.OTCFlag = 0 AND P.ColdStore = 0
-AND P.Factory NOT LIKE 'æ­¦æ±‰å›½ç¸ç§‘æŠ€%' AND P.Factory NOT LIKE '%å¥‡åŠ›åº·%'
-AND P.Product_ID NOT IN (7310)		--ä¸æ·»åŠ æ–°ç–†é¹¿è§’èƒ¶(èŒé¹¿)(çº¸ç›’)
-AND P.name NOT LIKE '%ç‘¾æ¤%'
---æœ‰ä¼šå‘˜ä»·çš„å•†å“ä¸å‚åŠ ä¼šå‘˜æ—¥
+AND P.Factory NOT LIKE 'Îäºº¹ú¾Ä¿Æ¼¼%' AND P.Factory NOT LIKE '%ÆæÁ¦¿µ%'
+AND P.Product_ID NOT IN (7310)		--²»Ìí¼ÓĞÂ½®Â¹½Ç½º(¾¥Â¹)(Ö½ºĞ)
+AND P.name NOT LIKE '%èªÖ²%'
+--ÓĞ»áÔ±¼ÛµÄÉÌÆ·²»²Î¼Ó»áÔ±ÈÕ
 AND P.Product_ID NOT IN (SELECT DISTINCT P.Product_ID FROM Products P,Px_price PX WHERE P.Product_ID = PX.P_id AND PX.VipPrice> 0) 
 ORDER BY MLL DESC
 
 
 INSERT INTO ##CxTemp
---ä¼šå‘˜æ—¥,å¤„æ–¹è¯95æŠ˜çš„å“ç§ï¼ŒåŒ…å«å†·é“¾
+--»áÔ±ÈÕ,´¦·½Ò©95ÕÛµÄÆ·ÖÖ£¬°üº¬ÀäÁ´
 SELECT DISTINCT P.Product_ID AS P_ID,P.u_id,PXMD.retailPrice, PXMD.costp,CONVERT(NUMERIC(18,4),(PXMD.retailPrice -costp)/PXMD.retailPrice) AS MLL,0.95 AS CLASS,1 AS type
 FROM Products P,--s_storehouse ST,
 ( SELECT A.P_id,A.retailPrice,CASE WHEN A.PrePrice1 = 0 THEN A.RecBuyPrice ELSE A.PrePrice1 END AS costp,	--,A.PrePrice1,A.RecBuyPrice
 A.Y_id,A.U_id FROM Px_price A,Products P WHERE a.Y_id IN 
 	 (SELECT max(B.Y_id) AS Y_id FROM Px_price AS B WHERE A.P_id = B.p_id ) AND P.U_ID = A.U_id AND P.Product_ID = A.P_id
 	 AND A.retailPrice <> 0 AND A.PrePrice1+A.RecBuyPrice <> 0
-	 --é—¨åº—ä»·æ ¼ä½“ç³»ï¼Œå¦‚æœé…é€ä»·æ²¡æœ‰åˆ™ç”¨æœ€è¿‘è¿›ä»·
+	 --ÃÅµê¼Û¸ñÌåÏµ£¬Èç¹ûÅäËÍ¼ÛÃ»ÓĞÔòÓÃ×î½ü½ø¼Û
  ) AS PXMD
 WHERE P.Product_ID = PXMD.P_id AND P.U_ID = PXMD.U_id AND PXMD.retailPrice > 0 	--AND ST.p_id = P.Product_ID 
-AND P.DELETED = 0 AND P.Isdir = 0 AND P.Product_ID NOT IN (8000,8001,8456,19072)	--å››ä¸ªæ‹†é›¶å‰”é™¤
-AND (P.OTCFlag >0 OR P.ColdStore = 1 OR P.Product_ID IN (7310))	--7310ä»£è¡¨æ–°ç–†é¹¿è§’èƒ¶(èŒé¹¿)(çº¸ç›’)åŠ å…¥ä¼šå‘˜æ—¥95æŠ˜é‡Œ
---æœ‰ä¼šå‘˜ä»·çš„å•†å“ä¸å‚åŠ ä¼šå‘˜æ—¥
+AND P.DELETED = 0 AND P.Isdir = 0 AND P.Product_ID NOT IN (8000,8001,8456,19072)	--ËÄ¸ö²ğÁãÌŞ³ı
+AND (P.OTCFlag >0 OR P.ColdStore = 1 OR P.Product_ID IN (7310))	--7310´ú±íĞÂ½®Â¹½Ç½º(¾¥Â¹)(Ö½ºĞ)¼ÓÈë»áÔ±ÈÕ95ÕÛÀï
+--ÓĞ»áÔ±¼ÛµÄÉÌÆ·²»²Î¼Ó»áÔ±ÈÕ
 AND P.Product_ID NOT IN (SELECT DISTINCT P.Product_ID FROM Products P,Px_price PX WHERE P.Product_ID = PX.P_id AND PX.VipPrice> 0) 
 ORDER BY MLL DESC
 
 
 INSERT INTO ##CxTemp
---ä¼šå‘˜æ—¥,éƒ¨åˆ†98æŠ˜çš„å“ç§
+--»áÔ±ÈÕ,²¿·Ö98ÕÛµÄÆ·ÖÖ
 SELECT DISTINCT P.Product_ID AS P_ID,P.u_id,PXMD.retailPrice, PXMD.costp,CONVERT(NUMERIC(18,4),(PXMD.retailPrice -costp)/PXMD.retailPrice) AS MLL,0.98 AS CLASS,1 AS type
 FROM Products P,--s_storehouse ST,
 ( SELECT A.P_id,A.retailPrice,CASE WHEN A.PrePrice1 = 0 THEN A.RecBuyPrice ELSE A.PrePrice1 END AS costp,	--,A.PrePrice1,A.RecBuyPrice
 A.Y_id,A.U_id FROM Px_price A,Products P WHERE a.Y_id IN 
 	 (SELECT max(B.Y_id) AS Y_id FROM Px_price AS B WHERE A.P_id = B.p_id ) AND P.U_ID = A.U_id AND P.Product_ID = A.P_id
 	 AND A.retailPrice <> 0 
-	 --é—¨åº—ä»·æ ¼ä½“ç³»ï¼Œå¦‚æœé…é€ä»·æ²¡æœ‰åˆ™ç”¨æœ€è¿‘è¿›ä»·
+	 --ÃÅµê¼Û¸ñÌåÏµ£¬Èç¹ûÅäËÍ¼ÛÃ»ÓĞÔòÓÃ×î½ü½ø¼Û
  ) AS PXMD
 WHERE P.Product_ID = PXMD.P_id AND P.U_ID = PXMD.U_id AND PXMD.retailPrice > 0 	--AND ST.p_id = P.Product_ID 
 AND P.DELETED = 0 AND P.Isdir = 0
-AND (P.Factory LIKE 'æ­¦æ±‰å›½ç¸ç§‘æŠ€%' OR P.Factory LIKE '%å¥‡åŠ›åº·%')
+AND (P.Factory LIKE 'Îäºº¹ú¾Ä¿Æ¼¼%' OR P.Factory LIKE '%ÆæÁ¦¿µ%')
 ORDER BY MLL DESC
 
 
 INSERT INTO ##CxTemp
---éä¼šå‘˜æ—¥,98æŠ˜çš„å“ç§
+--·Ç»áÔ±ÈÕ,98ÕÛµÄÆ·ÖÖ
 SELECT DISTINCT P.Product_ID AS P_ID,P.u_id,PXMD.retailPrice, PXMD.costp,CONVERT(NUMERIC(18,4),(PXMD.retailPrice -costp)/PXMD.retailPrice) AS MLL,0.98 AS CLASS,0 AS type
 FROM Products P,--s_storehouse ST,
 ( SELECT A.P_id,A.retailPrice,CASE WHEN A.PrePrice1 = 0 THEN A.RecBuyPrice ELSE A.PrePrice1 END AS costp,	--,A.PrePrice1,A.RecBuyPrice
 A.Y_id,A.U_id FROM Px_price A,Products P WHERE a.Y_id IN 
 	 (SELECT max(B.Y_id) AS Y_id FROM Px_price AS B WHERE A.P_id = B.p_id ) AND P.U_ID = A.U_id AND P.Product_ID = A.P_id
 	  AND A.retailPrice <> 0 
-	 --é—¨åº—ä»·æ ¼ä½“ç³»ï¼Œå¦‚æœé…é€ä»·æ²¡æœ‰åˆ™ç”¨æœ€è¿‘è¿›ä»·
+	 --ÃÅµê¼Û¸ñÌåÏµ£¬Èç¹ûÅäËÍ¼ÛÃ»ÓĞÔòÓÃ×î½ü½ø¼Û
  ) AS PXMD
 WHERE P.Product_ID = PXMD.P_id AND P.U_ID = PXMD.U_id AND PXMD.retailPrice > 0 	--AND ST.p_id = P.Product_ID 
 AND P.DELETED = 0 AND P.Isdir = 0
-AND P.Product_ID NOT IN (SELECT DISTINCT P_id FROM Px_price WHERE VipPrice > 0)	--å‡¡æ˜¯æœ‰ä¼šå‘˜ä»·å•†å“å¹³æ—¶ä¸å‚ä¸98æŠ˜ï¼ŒæŒ‰æ™®é€šä¼šå‘˜ä»·æ‰§è¡Œ
-AND P.Parent_id NOT LIKE '000004000001%' AND P.Product_ID NOT IN (8000,8001,8456,19072) AND P.name NOT LIKE '%ç‘¾æ¤%'
---æœ‰ä¼šå‘˜ä»·çš„å•†å“ä¸å‚åŠ ä¼šå‘˜æ—¥
+AND P.Product_ID NOT IN (SELECT DISTINCT P_id FROM Px_price WHERE VipPrice > 0)	--·²ÊÇÓĞ»áÔ±¼ÛÉÌÆ·Æ½Ê±²»²ÎÓë98ÕÛ£¬°´ÆÕÍ¨»áÔ±¼ÛÖ´ĞĞ
+AND P.Parent_id NOT LIKE '000004000001%' AND P.Product_ID NOT IN (8000,8001,8456,19072) AND P.name NOT LIKE '%èªÖ²%'
+--ÓĞ»áÔ±¼ÛµÄÉÌÆ·²»²Î¼Ó»áÔ±ÈÕ
 AND P.Product_ID NOT IN (SELECT DISTINCT P.Product_ID FROM Products P,Px_price PX WHERE P.Product_ID = PX.P_id AND PX.VipPrice> 0) 
 ORDER BY MLL DESC
 
 --++++++++++++++++++++++++++++++++++++++
 
---å…ˆå°†å‡ ç§æ‰“æŠ˜çš„æ¯”ä¾‹ï¼Œå•æ®å·ï¼Œå’Œå¤‡æ³¨æ’å…¥ä¸´æ—¶è¡¨
+--ÏÈ½«¼¸ÖÖ´òÕÛµÄ±ÈÀı£¬µ¥¾İºÅ£¬ºÍ±¸×¢²åÈëÁÙÊ±±í
 IF exists (select * from tempdb..sysobjects where id = object_id('tempdb..#CxZKTemp'))
 DROP table [dbo].[#CxZKTemp]
-CREATE TABLE [dbo].[#CxZKTemp]([ZKL] NUMERIC(18,2) NOT NULL,[BNUM] VARCHAR(3) NOT NULL,[NOTE] VARCHAR(80) NOT NULL,[type] INT NOT NULL)	--typeä¸º1æ˜¯ä¼šå‘˜æ—¥å½“å¤©
+CREATE TABLE [dbo].[#CxZKTemp]([ZKL] NUMERIC(18,2) NOT NULL,[BNUM] VARCHAR(3) NOT NULL,[NOTE] VARCHAR(80) NOT NULL,[type] INT NOT NULL)	--typeÎª1ÊÇ»áÔ±ÈÕµ±Ìì
 INSERT INTO #CxZKTemp VALUES 
-(0.85,'20','é—¨åº—ç‰ˆ2018 ä¼šå‘˜æ—¥ éå¤„æ–¹å“ç§85æŠ˜',1),
-(0.95,'21','é—¨åº—ç‰ˆ2018 ä¼šå‘˜æ—¥ å¤„æ–¹è¯95æŠ˜',1),
-(0.98,'22','é—¨åº—ç‰ˆ2018 ä¼šå‘˜æ—¥ éƒ¨åˆ†å“ç§98æŠ˜',1),
-(0.98,'30','é—¨åº—ç‰ˆ2018 éä¼šå‘˜æ—¥ ä¼šå‘˜98æŠ˜',0)
+(0.85,'20','ÃÅµê°æ2018 »áÔ±ÈÕ ·Ç´¦·½Æ·ÖÖ85ÕÛ',1),
+(0.95,'21','ÃÅµê°æ2018 »áÔ±ÈÕ ´¦·½Ò©95ÕÛ',1),
+(0.98,'22','ÃÅµê°æ2018 »áÔ±ÈÕ ²¿·ÖÆ·ÖÖ98ÕÛ',1),
+(0.98,'30','ÃÅµê°æ2018 ·Ç»áÔ±ÈÕ »áÔ±98ÕÛ',0)
 
 DECLARE @ZKL1 NUMERIC(18,2),@BNUM1 VARCHAR(3),@NOTE1 VARCHAR(80),@DBID1 INT,
 @ZKL2 NUMERIC(18,2),@BNUM2 VARCHAR(3),@NOTE2 VARCHAR(80),@DBID2 INT,
 @PID INT,@UID INT
 
---å¼€å§‹å¾ªç¯ï¼Œæ’å…¥å•æ®å’Œæ˜ç»†
---é¦–å…ˆè¦æ’å…¥ä¼šå‘˜æ—¥å½“å¤©çš„
+--¿ªÊ¼Ñ­»·£¬²åÈëµ¥¾İºÍÃ÷Ï¸
+--Ê×ÏÈÒª²åÈë»áÔ±ÈÕµ±ÌìµÄ
 DECLARE CURSOR_CX_HYR CURSOR FOR 
 	SELECT zkl,bnum,note FROM #CxZKTemp WHERE type = 1
 OPEN CURSOR_CX_HYR
@@ -130,7 +130,7 @@ OPEN CURSOR_CX_HYR
 WHILE @@FETCH_STATUS = 0
 BEGIN
 
-	--æ’å…¥PM_Index
+	--²åÈëPM_Index
 	INSERT INTO PM_Index (billdate,billnumber,billtype,e_id,note,auditman,auditdate,billstate,begindate,
 	enddate,begintime,endtime,weeks,days,RetailBill,SaleBill,VipType,p_id,MinPQty,MinMoney,SumSpeP,SumDisP,ChangeOne,
 	Dts_BillID,Factory,LimitDays,MaxQty,MaxPCount,VipMaxQty,VipMaxPCount)
@@ -139,12 +139,12 @@ BEGIN
 	'1900-01-01 00:00:00.000','1900-01-01 23:59:59.000','1111111','00000100000000010000000001000000','1',0,0,0,'0.0000','0.0000','0','0','0','0',
 	' ','1','0.0000','0','0.0000','0')
 
-	SELECT @DBID1 = MAX(billid) FROM PM_Index    --è·å¾—æ’å…¥åçš„billid
+	SELECT @DBID1 = MAX(billid) FROM PM_Index    --»ñµÃ²åÈëºóµÄbillid
 
-	--æ’å…¥PM_ClientStock
+	--²åÈëPM_ClientStock
 	INSERT INTO PM_ClientStock (billid,mode,data_id,Dts_Detail_ID) VALUES(@DBID1,0,0,0),(@DBID1,1,0,0)
 
-	--å¼€å§‹æ’å…¥PM_Detail
+	--¿ªÊ¼²åÈëPM_Detail
 	INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
 	SELECT @DBID1,P_ID,u_id,0,0,@ZKL1,0,1,0,0,0,'',0
 	FROM ##CxTemp WHERE CLASS = @ZKL1 AND type = 1
@@ -155,7 +155,7 @@ CLOSE CURSOR_CX_HYR
 DEALLOCATE CURSOR_CX_HYR
 
 --++++++++++++++++++++++++++++++++++++++
---è¦æ’å…¥éä¼šå‘˜æ—¥çš„
+--Òª²åÈë·Ç»áÔ±ÈÕµÄ
 DECLARE CURSOR_CX_HYR CURSOR FOR 
 	SELECT zkl,bnum,note FROM #CxZKTemp WHERE type = 0
 OPEN CURSOR_CX_HYR
@@ -163,7 +163,7 @@ OPEN CURSOR_CX_HYR
 WHILE @@FETCH_STATUS = 0
 BEGIN
 
-	--æ’å…¥PM_Index
+	--²åÈëPM_Index
 	INSERT INTO PM_Index (billdate,billnumber,billtype,e_id,note,auditman,auditdate,billstate,begindate,
 	enddate,begintime,endtime,weeks,days,RetailBill,SaleBill,VipType,p_id,MinPQty,MinMoney,SumSpeP,SumDisP,ChangeOne,
 	Dts_BillID,Factory,LimitDays,MaxQty,MaxPCount,VipMaxQty,VipMaxPCount)
@@ -172,12 +172,12 @@ BEGIN
 	'1900-01-01 00:00:00.000','1900-01-01 23:59:59.000','1111111','11111011111111101111111110111111','1',0,0,0,'0.0000','0.0000','0','0','0','0',
 	' ','1','0.0000','0','0.0000','0')
 
-	SELECT @DBID2 = MAX(billid) FROM PM_Index    --è·å¾—æ’å…¥åçš„billid
+	SELECT @DBID2 = MAX(billid) FROM PM_Index    --»ñµÃ²åÈëºóµÄbillid
 
-	--æ’å…¥PM_ClientStock
+	--²åÈëPM_ClientStock
 	INSERT INTO PM_ClientStock (billid,mode,data_id,Dts_Detail_ID) VALUES(@DBID2,0,0,0),(@DBID2,1,0,0)
 
-	--å¼€å§‹æ’å…¥PM_Detail
+	--¿ªÊ¼²åÈëPM_Detail
 	INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
 	SELECT @DBID2,P_ID,u_id,0,0,@ZKL2,0,1,0,0,0,'',0
 	FROM ##CxTemp WHERE CLASS = @ZKL2 AND type = 0

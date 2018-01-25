@@ -1,9 +1,10 @@
 http://www.linuxidc.com/Linux/2014-03/97821.htm
- 
+  
 root 登陆
 apt-get install -y git
 
 普通用户登陆
+git config core.quotepath false     #取消中文被转义
 umask 0002
 mkdir /home/me/git
 mkdir /home/me/git/fun
