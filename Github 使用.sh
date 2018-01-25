@@ -1,5 +1,5 @@
 http://www.linuxidc.com/Linux/2014-03/97821.htm
-  
+ 
 root 登陆
 apt-get install -y git
 
