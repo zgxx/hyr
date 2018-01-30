@@ -73,22 +73,22 @@ ORDER BY MLL DESC
 
 INSERT INTO ##CxTemp
 --会员日,部分98折的品种
-SELECT DISTINCT P.Product_ID AS P_ID,P.u_id,PXMD.retailPrice, PXMD.costp,CONVERT(NUMERIC(18,4),(PXMD.retailPrice -costp)/PXMD.retailPrice) AS MLL,0.98 AS CLASS,1 AS type
-FROM Products P,--s_storehouse ST,
-( SELECT A.P_id,A.retailPrice,CASE WHEN A.PrePrice1 = 0 THEN A.RecBuyPrice ELSE A.PrePrice1 END AS costp,	--,A.PrePrice1,A.RecBuyPrice
+SELECT DISTINCT P.Product_ID AS P_ID,P.u_id,ISNULL(PXMD.retailPrice,0) AS retailPrice, ISNULL(PXMD.costp,0) AS costp,ISNULL(PXMD.VipPrice,0) AS VipPrice,
+CONVERT(NUMERIC(18,4),(ISNULL(PXMD.retailPrice,0) - ISNULL(costp,0))/ISNULL(PXMD.retailPrice,9999)) AS MLL,  --毛利率
+0.98 AS CLASS,1 AS type
+FROM Products P LEFT JOIN
+( SELECT A.P_id,A.retailPrice,A.VipPrice,CASE WHEN A.PrePrice1 = 0 THEN A.RecBuyPrice ELSE A.PrePrice1 END AS costp,	--,A.PrePrice1,A.RecBuyPrice
 A.Y_id,A.U_id FROM Px_price A,Products P WHERE a.Y_id IN 
 	 (SELECT max(B.Y_id) AS Y_id FROM Px_price AS B WHERE A.P_id = B.p_id ) AND P.U_ID = A.U_id AND P.Product_ID = A.P_id
-	 AND A.retailPrice <> 0 
+	  AND A.retailPrice > 0 
 	 --门店价格体系，如果配送价没有则用最近进价
- ) AS PXMD
-WHERE P.Product_ID = PXMD.P_id AND P.U_ID = PXMD.U_id AND PXMD.retailPrice > 0 	--AND ST.p_id = P.Product_ID 
-AND P.DELETED = 0 AND P.Isdir = 0
-AND (P.Factory LIKE '武汉国灸科技%' OR P.Factory LIKE '%奇力康%')
+ ) AS PXMD ON P.Product_ID = PXMD.P_id AND P.U_ID = PXMD.U_id
+WHERE P.DELETED = 0 AND P.Isdir = 0
+AND (P.Factory LIKE '武汉国灸科技%' OR P.Factory LIKE '%奇力康%')		--手动添加了这些品种
 ORDER BY MLL DESC
 
 
 INSERT INTO ##CxTemp
-
 --非会员日,98折的品种,凡是有会员价商品不参与98折，按普通会员价执行
 SELECT DISTINCT P.Product_ID AS P_ID,P.u_id,ISNULL(PXMD.retailPrice,0) AS retailPrice, ISNULL(PXMD.costp,0) AS costp,ISNULL(PXMD.VipPrice,0) AS VipPrice,
 CONVERT(NUMERIC(18,4),(ISNULL(PXMD.retailPrice,0) - ISNULL(costp,0))/ISNULL(PXMD.retailPrice,9999)) AS MLL,  --毛利率
@@ -97,12 +97,12 @@ FROM Products P LEFT JOIN
 ( SELECT A.P_id,A.retailPrice,A.VipPrice,CASE WHEN A.PrePrice1 = 0 THEN A.RecBuyPrice ELSE A.PrePrice1 END AS costp,	--,A.PrePrice1,A.RecBuyPrice
 A.Y_id,A.U_id FROM Px_price A,Products P WHERE a.Y_id IN 
 	 (SELECT max(B.Y_id) AS Y_id FROM Px_price AS B WHERE A.P_id = B.p_id ) AND P.U_ID = A.U_id AND P.Product_ID = A.P_id
-	  AND A.retailPrice <> 0 
+	  AND A.retailPrice > 0 
 	 --门店价格体系，如果配送价没有则用最近进价
  ) AS PXMD ON P.Product_ID = PXMD.P_id AND P.U_ID = PXMD.U_id
-WHERE  P.DELETED = 0 AND P.Isdir = 0 AND P.Parent_id NOT LIKE '000004000001%' AND P.Product_ID NOT IN (8000,8001,8456,19072) AND P.name NOT LIKE '%瑾植%'
-AND (PXMD.VipPrice = 0 OR PXMD.VipPrice IS NULL)
+WHERE  P.DELETED = 0 AND P.Isdir = 0
+AND (PXMD.VipPrice = 0 OR PXMD.VipPrice IS NULL)		--会员价的品种不参与打折
+AND P.Parent_id NOT LIKE '000004000001%' AND P.Product_ID NOT IN (8000,8001,8456,19072) AND P.name NOT LIKE '%瑾植%'
 ORDER BY MLL DESC
-
 
 
