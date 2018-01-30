@@ -55,19 +55,18 @@ ORDER BY MLL DESC
 
 INSERT INTO ##CxTemp
 --会员日,处方药95折的品种，包含冷链
-SELECT DISTINCT P.Product_ID AS P_ID,P.u_id,PXMD.retailPrice, PXMD.costp,CONVERT(NUMERIC(18,4),(PXMD.retailPrice -costp)/PXMD.retailPrice) AS MLL,0.95 AS CLASS,1 AS type
-FROM Products P,--s_storehouse ST,
-( SELECT A.P_id,A.retailPrice,CASE WHEN A.PrePrice1 = 0 THEN A.RecBuyPrice ELSE A.PrePrice1 END AS costp,	--,A.PrePrice1,A.RecBuyPrice
+SELECT DISTINCT P.Product_ID AS P_ID,P.u_id,ISNULL(PXMD.retailPrice,0) AS retailPrice, ISNULL(PXMD.costp,0) AS costp,ISNULL(PXMD.VipPrice,0) AS VipPrice,
+CONVERT(NUMERIC(18,4),(ISNULL(PXMD.retailPrice,0) - ISNULL(costp,0))/ISNULL(PXMD.retailPrice,9999)) AS MLL,  --毛利率
+0.95 AS CLASS,1 AS type
+FROM Products P LEFT JOIN
+( SELECT A.P_id,A.retailPrice,A.VipPrice,CASE WHEN A.PrePrice1 = 0 THEN A.RecBuyPrice ELSE A.PrePrice1 END AS costp,	--,A.PrePrice1,A.RecBuyPrice
 A.Y_id,A.U_id FROM Px_price A,Products P WHERE a.Y_id IN 
 	 (SELECT max(B.Y_id) AS Y_id FROM Px_price AS B WHERE A.P_id = B.p_id ) AND P.U_ID = A.U_id AND P.Product_ID = A.P_id
-	 AND A.retailPrice <> 0 AND A.PrePrice1+A.RecBuyPrice <> 0
+	  AND A.retailPrice > 0 
 	 --门店价格体系，如果配送价没有则用最近进价
- ) AS PXMD
-WHERE P.Product_ID = PXMD.P_id AND P.U_ID = PXMD.U_id AND PXMD.retailPrice > 0 	--AND ST.p_id = P.Product_ID 
-AND P.DELETED = 0 AND P.Isdir = 0 AND P.Product_ID NOT IN (8000,8001,8456,19072)	--四个拆零剔除
+ ) AS PXMD ON P.Product_ID = PXMD.P_id AND P.U_ID = PXMD.U_id
+WHERE P.DELETED = 0 AND P.Isdir = 0 AND P.Product_ID NOT IN (8000,8001,8456,19072)	--四个拆零剔除
 AND (P.OTCFlag >0 OR P.ColdStore = 1 OR P.Product_ID IN (7310))	--7310代表新疆鹿角胶(茎鹿)(纸盒)加入会员日95折里
---有会员价的商品不参加会员日
-AND P.Product_ID NOT IN (SELECT DISTINCT P.Product_ID FROM Products P,Px_price PX WHERE P.Product_ID = PX.P_id AND PX.VipPrice> 0) 
 ORDER BY MLL DESC
 
 
