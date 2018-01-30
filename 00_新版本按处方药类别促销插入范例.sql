@@ -1,4 +1,4 @@
---ansi编码存储 
+--ansi编码存储 x
 --提取数据插入临时表
 IF exists (select * from tempdb..sysobjects where id = object_id('tempdb..##CxTemp'))
 DROP table [dbo].[##CxTemp]
