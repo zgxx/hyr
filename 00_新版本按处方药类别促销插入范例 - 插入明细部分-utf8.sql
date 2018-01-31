@@ -1,19 +1,4 @@
-﻿--获得单据号对应的billid
-DECLARE @BID_hyr1 INT,@BID_hyr_85 INT,@BID_hyr95 INT,@BID_hyr98 INT, @BID_fhyr1 INT,@BID_fhyr98 INT
-SELECT @BID_hyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00020' AND note LIKE '门店版2018%'   --门店版2018 会员日 选定不打折品种
-SELECT @BID_hyr_85  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00021' AND note LIKE '门店版2018%'	 --门店版2018 会员日 非处方品种85折
-SELECT @BID_hyr95 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00022' AND note LIKE '门店版2018%'	 --门店版2018 会员日 处方药95折
-SELECT @BID_hyr98  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00023' AND note LIKE '门店版2018%'   --门店版2018 会员日 部分品种98折
-
-SELECT @BID_fhyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00030' AND note LIKE '门店版2018%'   --门店版2018 非会员日 选定不打折品种
-SELECT @BID_fhyr98  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00031' AND note LIKE '门店版2018%'   --门店版2018 非会员日 会员98折
-
-IF (@BID_hyr1+@BID_hyr_85+@BID_hyr95+@BID_hyr98+@BID_fhyr1+@BID_fhyr98) IS NULL 
-BEGIN 
-  SELECT [有点问题]='促销单据还没有'
-  SELECT [解决方法]='先执行插入单据的脚本再执行此脚本'
-      RETURN		--加个return 退出执行SQL
-END
+﻿
  
 --提取数据插入临时表
 IF exists (select * from tempdb..sysobjects where id = object_id('tempdb..##CxTemp'))
@@ -66,7 +51,7 @@ AND P.OTCFlag = 0 AND P.ColdStore = 0
 AND P.Factory NOT LIKE '武汉国灸科技%' AND P.Factory NOT LIKE '%奇力康%'
 AND P.Product_ID NOT IN (7310)		--不添加新疆鹿角胶(茎鹿)(纸盒)
 AND P.name NOT LIKE '%瑾植%'
-ORDER BY MLL DESC
+ORDER BY MLL
 
 
 INSERT INTO ##CxTemp
@@ -83,7 +68,7 @@ A.Y_id,A.U_id FROM Px_price A,Products P WHERE a.Y_id IN
  ) AS PXMD ON P.Product_ID = PXMD.P_id AND P.U_ID = PXMD.U_id
 WHERE P.DELETED = 0 AND P.Isdir = 0 AND P.Product_ID NOT IN (8000,8001,8456,19072)	--四个拆零剔除
 AND (P.OTCFlag >0 OR P.ColdStore = 1 OR P.Product_ID IN (7310))	--7310代表新疆鹿角胶(茎鹿)(纸盒)加入会员日95折里
-ORDER BY MLL DESC
+ORDER BY MLL
 
 
 INSERT INTO ##CxTemp
@@ -100,7 +85,7 @@ A.Y_id,A.U_id FROM Px_price A,Products P WHERE a.Y_id IN
  ) AS PXMD ON P.Product_ID = PXMD.P_id AND P.U_ID = PXMD.U_id
 WHERE P.DELETED = 0 AND P.Isdir = 0
 AND (P.Factory LIKE '武汉国灸科技%' OR P.Factory LIKE '%奇力康%')		--手动添加了这些品种
-ORDER BY MLL DESC
+ORDER BY MLL
 
 
 INSERT INTO ##CxTemp
@@ -118,6 +103,45 @@ A.Y_id,A.U_id FROM Px_price A,Products P WHERE a.Y_id IN
 WHERE  P.DELETED = 0 AND P.Isdir = 0
 AND (PXMD.VipPrice = 0 OR PXMD.VipPrice IS NULL)		--会员价的品种不参与打折
 AND P.Parent_id NOT LIKE '000004000001%' AND P.Product_ID NOT IN (8000,8001,8456,19072) AND P.name NOT LIKE '%瑾植%'
-ORDER BY MLL DESC
+ORDER BY MLL
+
+------------------
+--获得单据号对应的billid
+DECLARE @BID_hyr1 INT,@BID_hyr85 INT,@BID_hyr95 INT,@BID_hyr98 INT, @BID_fhyr1 INT,@BID_fhyr98 INT
+SELECT @BID_hyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00020' AND note LIKE '门店版2018%'   --门店版2018 会员日 选定不打折品种
+SELECT @BID_hyr85  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00021' AND note LIKE '门店版2018%'	 --门店版2018 会员日 非处方品种85折
+SELECT @BID_hyr95 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00022' AND note LIKE '门店版2018%'	 --门店版2018 会员日 处方药95折
+SELECT @BID_hyr98  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00023' AND note LIKE '门店版2018%'   --门店版2018 会员日 部分品种98折
+
+SELECT @BID_fhyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00030' AND note LIKE '门店版2018%'   --门店版2018 非会员日 选定不打折品种
+SELECT @BID_fhyr98  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00031' AND note LIKE '门店版2018%'   --门店版2018 非会员日 会员98折
+
+IF (@BID_hyr1+@BID_hyr85+@BID_hyr95+@BID_hyr98+@BID_fhyr1+@BID_fhyr98) IS NULL 
+BEGIN 
+  SELECT [有点问题]='促销单据还没有'
+  SELECT [解决方法]='先执行插入单据的脚本再执行此脚本'
+      RETURN		--加个return 退出执行SQL
+END
+--SELECT @BID_hyr1+@BID_hyr_85+@BID_hyr95+@BID_hyr98+@BID_fhyr1+@BID_fhyr98
 
 
+--开始插入PM_Detail的明细
+--会员日 非处方品种85折
+INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
+SELECT @BID_hyr85,P_ID,u_id,0,0,class,0,1,0,0,0,profit_rate,0
+FROM ##CxTemp WHERE CLASS = 0.85 AND type = 1
+
+--会员日 处方药95折
+INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
+SELECT @BID_hyr95,P_ID,u_id,0,0,class,0,1,0,0,0,profit_rate,0
+FROM ##CxTemp WHERE CLASS = 0.95 AND type = 1
+
+--会员日 部分品种98折
+INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
+SELECT @BID_hyr98,P_ID,u_id,0,0,class,0,1,0,0,0,profit_rate,0
+FROM ##CxTemp WHERE CLASS = 0.98 AND type = 1
+
+--非会员日 会员98折
+INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
+SELECT @BID_fhyr98,P_ID,u_id,0,0,class,0,1,0,0,0,profit_rate,0
+FROM ##CxTemp WHERE CLASS = 0.98 AND type = 0
