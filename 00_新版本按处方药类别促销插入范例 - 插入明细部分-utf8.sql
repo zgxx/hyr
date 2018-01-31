@@ -106,6 +106,7 @@ AND P.Parent_id NOT LIKE '000004000001%' AND P.Product_ID NOT IN (8000,8001,8456
 ORDER BY MLL
 
 ------------------
+
 --获得单据号对应的billid
 DECLARE @BID_hyr1 INT,@BID_hyr85 INT,@BID_hyr95 INT,@BID_hyr98 INT, @BID_fhyr1 INT,@BID_fhyr98 INT
 SELECT @BID_hyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00020' AND note LIKE '门店版2018%'   --门店版2018 会员日 选定不打折品种
