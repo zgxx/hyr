@@ -1,4 +1,20 @@
-﻿ 
+﻿--获得单据号对应的billid
+DECLARE @BID_hyr1 INT,@BID_hyr_85 INT,@BID_hyr95 INT,@BID_hyr98 INT, @BID_fhyr1 INT,@BID_fhyr98 INT
+SELECT @BID_hyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00020' AND note LIKE '门店版2018%'   --门店版2018 会员日 选定不打折品种
+SELECT @BID_hyr_85  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00021' AND note LIKE '门店版2018%'	 --门店版2018 会员日 非处方品种85折
+SELECT @BID_hyr95 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00022' AND note LIKE '门店版2018%'	 --门店版2018 会员日 处方药95折
+SELECT @BID_hyr98  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00023' AND note LIKE '门店版2018%'   --门店版2018 会员日 部分品种98折
+
+SELECT @BID_fhyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00030' AND note LIKE '门店版2018%'   --门店版2018 非会员日 选定不打折品种
+SELECT @BID_fhyr98  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00031' AND note LIKE '门店版2018%'   --门店版2018 非会员日 会员98折
+
+IF (@BID_hyr1+@BID_hyr_85+@BID_hyr95+@BID_hyr98+@BID_fhyr1+@BID_fhyr98) IS NULL 
+BEGIN 
+  SELECT [有点问题]='促销单据还没有'
+  SELECT [解决方法]='先执行插入单据的脚本再执行此脚本'
+      RETURN		--加个return 退出执行SQL
+END
+ 
 --提取数据插入临时表
 IF exists (select * from tempdb..sysobjects where id = object_id('tempdb..##CxTemp'))
 DROP table [dbo].[##CxTemp]
