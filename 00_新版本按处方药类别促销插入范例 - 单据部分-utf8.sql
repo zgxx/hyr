@@ -1,23 +1,23 @@
+ï»¿
 
-
---ÏÈ½«¼¸ÖÖ´òÕÛµÄ±ÈÀı£¬µ¥¾İºÅ£¬ºÍ±¸×¢²åÈëÁÙÊ±±í
+--å…ˆå°†å‡ ç§æ‰“æŠ˜çš„æ¯”ä¾‹ï¼Œå•æ®å·ï¼Œå’Œå¤‡æ³¨æ’å…¥ä¸´æ—¶è¡¨
 IF exists (select * from tempdb..sysobjects where id = object_id('tempdb..#CxZKTemp'))
 DROP table [dbo].[#CxZKTemp]
-CREATE TABLE [dbo].[#CxZKTemp]([ZKL] NUMERIC(18,2) NOT NULL,[BNUM] VARCHAR(3) NOT NULL,[NOTE] VARCHAR(80) NOT NULL,[type] INT NOT NULL)	--typeÎª1ÊÇ»áÔ±ÈÕµ±Ìì
+CREATE TABLE [dbo].[#CxZKTemp]([ZKL] NUMERIC(18,2) NOT NULL,[BNUM] VARCHAR(3) NOT NULL,[NOTE] VARCHAR(80) NOT NULL,[type] INT NOT NULL)	--typeä¸º1æ˜¯ä¼šå‘˜æ—¥å½“å¤©
 INSERT INTO #CxZKTemp VALUES 
-(1.00,'20','ÃÅµê°æ2018 »áÔ±ÈÕ Ñ¡¶¨²»´òÕÛÆ·ÖÖ',1),
-(0.85,'21','ÃÅµê°æ2018 »áÔ±ÈÕ ·Ç´¦·½Æ·ÖÖ85ÕÛ',1),
-(0.95,'22','ÃÅµê°æ2018 »áÔ±ÈÕ ´¦·½Ò©95ÕÛ',1),
-(0.98,'23','ÃÅµê°æ2018 »áÔ±ÈÕ ²¿·ÖÆ·ÖÖ98ÕÛ',1),
-(0.98,'30','ÃÅµê°æ2018 ·Ç»áÔ±ÈÕ Ñ¡¶¨²»´òÕÛÆ·ÖÖ',0),
-(0.98,'31','ÃÅµê°æ2018 ·Ç»áÔ±ÈÕ »áÔ±98ÕÛ',0)
+(1.00,'20','é—¨åº—ç‰ˆ2018 ä¼šå‘˜æ—¥ é€‰å®šä¸æ‰“æŠ˜å“ç§',1),
+(0.85,'21','é—¨åº—ç‰ˆ2018 ä¼šå‘˜æ—¥ éå¤„æ–¹å“ç§85æŠ˜',1),
+(0.95,'22','é—¨åº—ç‰ˆ2018 ä¼šå‘˜æ—¥ å¤„æ–¹è¯95æŠ˜',1),
+(0.98,'23','é—¨åº—ç‰ˆ2018 ä¼šå‘˜æ—¥ éƒ¨åˆ†å“ç§98æŠ˜',1),
+(0.98,'30','é—¨åº—ç‰ˆ2018 éä¼šå‘˜æ—¥ é€‰å®šä¸æ‰“æŠ˜å“ç§',0),
+(0.98,'31','é—¨åº—ç‰ˆ2018 éä¼šå‘˜æ—¥ ä¼šå‘˜98æŠ˜',0)
 
 DECLARE @ZKL1 NUMERIC(18,2),@BNUM1 VARCHAR(3),@NOTE1 VARCHAR(80),@DBID1 INT,
 @ZKL2 NUMERIC(18,2),@BNUM2 VARCHAR(3),@NOTE2 VARCHAR(80),@DBID2 INT,
 @PID INT,@UID INT
 
---¿ªÊ¼Ñ­»·£¬²åÈëµ¥¾İºÍÃ÷Ï¸
---Ê×ÏÈÒª²åÈë»áÔ±ÈÕµ±ÌìµÄ
+--å¼€å§‹å¾ªç¯ï¼Œæ’å…¥å•æ®å’Œæ˜ç»†
+--é¦–å…ˆè¦æ’å…¥ä¼šå‘˜æ—¥å½“å¤©çš„
 DECLARE CURSOR_CX_HYR CURSOR FOR 
 	SELECT zkl,bnum,note FROM #CxZKTemp WHERE type = 1
 OPEN CURSOR_CX_HYR
@@ -25,7 +25,7 @@ OPEN CURSOR_CX_HYR
 WHILE @@FETCH_STATUS = 0
 BEGIN
 
-	--²åÈëPM_Index
+	--æ’å…¥PM_Index
 	INSERT INTO PM_Index (billdate,billnumber,billtype,e_id,note,auditman,auditdate,billstate,begindate,
 	enddate,begintime,endtime,weeks,days,RetailBill,SaleBill,VipType,p_id,MinPQty,MinMoney,SumSpeP,SumDisP,ChangeOne,
 	Dts_BillID,Factory,LimitDays,MaxQty,MaxPCount,VipMaxQty,VipMaxPCount)
@@ -34,12 +34,12 @@ BEGIN
 	'1900-01-01 00:00:00.000','1900-01-01 23:59:59.000','1111111','00000100000000010000000001000000','1',0,0,0,'0.0000','0.0000','0','0','0','0',
 	' ','1','0.0000','0','0.0000','0')
 
-	SELECT @DBID1 = MAX(billid) FROM PM_Index    --»ñµÃ²åÈëºóµÄbillid
+	SELECT @DBID1 = MAX(billid) FROM PM_Index    --è·å¾—æ’å…¥åçš„billid
 
-	--²åÈëPM_ClientStock
+	--æ’å…¥PM_ClientStock
 	INSERT INTO PM_ClientStock (billid,mode,data_id,Dts_Detail_ID) VALUES(@DBID1,0,0,0),(@DBID1,1,0,0)
 /*
-	--¿ªÊ¼²åÈëPM_Detail
+	--å¼€å§‹æ’å…¥PM_Detail
 	INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
 	SELECT @DBID1,P_ID,u_id,0,0,@ZKL1,0,1,0,0,0,'',0
 	FROM ##CxTemp WHERE CLASS = @ZKL1 AND type = 1
@@ -50,7 +50,7 @@ CLOSE CURSOR_CX_HYR
 DEALLOCATE CURSOR_CX_HYR
 
 --++++++++++++++++++++++++++++++++++++++
---Òª²åÈë·Ç»áÔ±ÈÕµÄ
+--è¦æ’å…¥éä¼šå‘˜æ—¥çš„
 DECLARE CURSOR_CX_HYR CURSOR FOR 
 	SELECT zkl,bnum,note FROM #CxZKTemp WHERE type = 0
 OPEN CURSOR_CX_HYR
@@ -58,7 +58,7 @@ OPEN CURSOR_CX_HYR
 WHILE @@FETCH_STATUS = 0
 BEGIN
 
-	--²åÈëPM_Index
+	--æ’å…¥PM_Index
 	INSERT INTO PM_Index (billdate,billnumber,billtype,e_id,note,auditman,auditdate,billstate,begindate,
 	enddate,begintime,endtime,weeks,days,RetailBill,SaleBill,VipType,p_id,MinPQty,MinMoney,SumSpeP,SumDisP,ChangeOne,
 	Dts_BillID,Factory,LimitDays,MaxQty,MaxPCount,VipMaxQty,VipMaxPCount)
@@ -67,12 +67,12 @@ BEGIN
 	'1900-01-01 00:00:00.000','1900-01-01 23:59:59.000','1111111','11111011111111101111111110111111','1',0,0,0,'0.0000','0.0000','0','0','0','0',
 	' ','1','0.0000','0','0.0000','0')
 
-	SELECT @DBID2 = MAX(billid) FROM PM_Index    --»ñµÃ²åÈëºóµÄbillid
+	SELECT @DBID2 = MAX(billid) FROM PM_Index    --è·å¾—æ’å…¥åçš„billid
 
-	--²åÈëPM_ClientStock
+	--æ’å…¥PM_ClientStock
 	INSERT INTO PM_ClientStock (billid,mode,data_id,Dts_Detail_ID) VALUES(@DBID2,0,0,0),(@DBID2,1,0,0)
 /*
-	--¿ªÊ¼²åÈëPM_Detail
+	--å¼€å§‹æ’å…¥PM_Detail
 	INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
 	SELECT @DBID2,P_ID,u_id,0,0,@ZKL2,0,1,0,0,0,'',0
 	FROM ##CxTemp WHERE CLASS = @ZKL2 AND type = 0
