@@ -125,6 +125,10 @@ BEGIN
 END
 --SELECT @BID_hyr1+@BID_hyr_85+@BID_hyr95+@BID_hyr98+@BID_fhyr1+@BID_fhyr98
 
+--删除会员日,非处方药85折的品种杂项
+--DELETE FROM PM_Detail WHERE billid = @BID_hyr85 AND P_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr1))
+
+
 
 --开始插入PM_Detail的明细
 --会员日 非处方品种85折
