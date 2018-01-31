@@ -132,21 +132,25 @@ INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqt
 SELECT @BID_hyr85,C.P_ID,C.u_id,0,0,C.class,0,1,0,0,0,C.profit_rate,0
 FROM ##CxTemp C LEFT JOIN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr85)) PMD ON PMD.p_id = C.P_ID
 WHERE C.CLASS = 0.85 AND C.type = 1  AND PMD.p_id IS NULL
+AND C.P_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr1))		--排除特定选定品种不打折
 
 --会员日 处方药95折
 INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
 SELECT @BID_hyr95,C.P_ID,C.u_id,0,0,C.class,0,1,0,0,0,C.profit_rate,0
 FROM ##CxTemp C LEFT JOIN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr95)) PMD ON PMD.p_id = C.P_ID
 WHERE C.CLASS = 0.95 AND C.type = 1  AND PMD.p_id IS NULL
+AND C.P_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr1))		--排除特定选定品种不打折
 
 --会员日 部分品种98折
 INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
 SELECT @BID_hyr98,C.P_ID,C.u_id,0,0,C.class,0,1,0,0,0,C.profit_rate,0
 FROM ##CxTemp C LEFT JOIN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr98)) PMD ON PMD.p_id = C.P_ID
 WHERE C.CLASS = 0.98 AND C.type = 1  AND PMD.p_id IS NULL
+AND C.P_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr1))		--排除特定选定品种不打折
 ------
 --非会员日 会员98折
 INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
 SELECT @BID_fhyr98,C.P_ID,C.u_id,0,0,C.class,0,1,0,0,0,C.profit_rate,0
 FROM ##CxTemp C LEFT JOIN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_fhyr98)) PMD ON PMD.p_id = C.P_ID
 WHERE C.CLASS = 0.98 AND C.type = 0  AND PMD.p_id IS NULL
+AND C.P_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_fhyr1))		--排除特定选定品种不打折
