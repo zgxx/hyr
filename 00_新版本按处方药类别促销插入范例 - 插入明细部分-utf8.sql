@@ -107,7 +107,7 @@ ORDER BY MLL
 
 ------------------
 
---获得单据号对应的billid
+--获得单据号对应的billid，准备插入促销明细
 DECLARE @BID_hyr1 INT,@BID_hyr85 INT,@BID_hyr95 INT,@BID_hyr98 INT, @BID_fhyr1 INT,@BID_fhyr98 INT
 SELECT @BID_hyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00020' AND note LIKE '门店版2018%'   --门店版2018 会员日 选定不打折品种
 SELECT @BID_hyr85  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00021' AND note LIKE '门店版2018%'	 --门店版2018 会员日 非处方品种85折
@@ -129,20 +129,24 @@ END
 --开始插入PM_Detail的明细
 --会员日 非处方品种85折
 INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
-SELECT @BID_hyr85,P_ID,u_id,0,0,class,0,1,0,0,0,profit_rate,0
-FROM ##CxTemp WHERE CLASS = 0.85 AND type = 1
+SELECT @BID_hyr85,C.P_ID,C.u_id,0,0,C.class,0,1,0,0,0,C.profit_rate,0
+FROM ##CxTemp C LEFT JOIN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr85)) PMD ON PMD.p_id = C.P_ID
+WHERE C.CLASS = 0.85 AND C.type = 1  AND PMD.p_id IS NULL
 
 --会员日 处方药95折
 INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
-SELECT @BID_hyr95,P_ID,u_id,0,0,class,0,1,0,0,0,profit_rate,0
-FROM ##CxTemp WHERE CLASS = 0.95 AND type = 1
+SELECT @BID_hyr95,C.P_ID,C.u_id,0,0,C.class,0,1,0,0,0,C.profit_rate,0
+FROM ##CxTemp C LEFT JOIN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr95)) PMD ON PMD.p_id = C.P_ID
+WHERE C.CLASS = 0.95 AND C.type = 1  AND PMD.p_id IS NULL
 
 --会员日 部分品种98折
 INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
-SELECT @BID_hyr98,P_ID,u_id,0,0,class,0,1,0,0,0,profit_rate,0
-FROM ##CxTemp WHERE CLASS = 0.98 AND type = 1
-
+SELECT @BID_hyr98,C.P_ID,C.u_id,0,0,C.class,0,1,0,0,0,C.profit_rate,0
+FROM ##CxTemp C LEFT JOIN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr98)) PMD ON PMD.p_id = C.P_ID
+WHERE C.CLASS = 0.98 AND C.type = 1  AND PMD.p_id IS NULL
+------
 --非会员日 会员98折
 INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
-SELECT @BID_fhyr98,P_ID,u_id,0,0,class,0,1,0,0,0,profit_rate,0
-FROM ##CxTemp WHERE CLASS = 0.98 AND type = 0
+SELECT @BID_fhyr98,C.P_ID,C.u_id,0,0,C.class,0,1,0,0,0,C.profit_rate,0
+FROM ##CxTemp C LEFT JOIN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_fhyr98)) PMD ON PMD.p_id = C.P_ID
+WHERE C.CLASS = 0.98 AND C.type = 0  AND PMD.p_id IS NULL
