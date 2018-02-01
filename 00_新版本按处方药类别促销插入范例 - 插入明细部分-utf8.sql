@@ -1,6 +1,6 @@
 ﻿
  
---提取数据插入临时表
+--提取数据插入临时表，为插入促销明细准备
 IF exists (select * from tempdb..sysobjects where id = object_id('tempdb..##CxTemp'))
 DROP table [dbo].[##CxTemp]
 GO
@@ -109,21 +109,23 @@ ORDER BY MLL
 
 --获得单据号对应的billid，准备插入促销明细
 DECLARE @BID_hyr1 INT,@BID_hyr85 INT,@BID_hyr95 INT,@BID_hyr98 INT, @BID_fhyr1 INT,@BID_fhyr98 INT
-SELECT @BID_hyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00020' AND note LIKE '门店版2018%'   --门店版2018 会员日 选定不打折品种
-SELECT @BID_hyr85  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00021' AND note LIKE '门店版2018%'	 --门店版2018 会员日 非处方品种85折
-SELECT @BID_hyr95 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00022' AND note LIKE '门店版2018%'	 --门店版2018 会员日 处方药95折
-SELECT @BID_hyr98  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00023' AND note LIKE '门店版2018%'   --门店版2018 会员日 部分品种98折
+SELECT @BID_hyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00020'   --门店版2018 会员日 选定不打折品种	-- AND note LIKE '门店版2018%'
+SELECT @BID_hyr85 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00021'	--门店版2018 会员日 非处方品种85折
+SELECT @BID_hyr95 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00022'	--门店版2018 会员日 处方药95折
+SELECT @BID_hyr98 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00023'   --门店版2018 会员日 部分品种98折
 
-SELECT @BID_fhyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00030' AND note LIKE '门店版2018%'   --门店版2018 非会员日 选定不打折品种
-SELECT @BID_fhyr98  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00031' AND note LIKE '门店版2018%'   --门店版2018 非会员日 会员98折
+SELECT @BID_fhyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00030'  --门店版2018 非会员日 选定不打折品种
+SELECT @BID_fhyr98 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00031'  --门店版2018 非会员日 会员98折
 
 IF (@BID_hyr1+@BID_hyr85+@BID_hyr95+@BID_hyr98+@BID_fhyr1+@BID_fhyr98) IS NULL 
+--SELECT @BID_hyr1+@BID_hyr_85+@BID_hyr95+@BID_hyr98+@BID_fhyr1+@BID_fhyr98
+--IF (ISNULL(@BID_hyr1,0)+ISNULL(@BID_hyr85,0)+ISNULL(@BID_hyr95,0)+ISNULL(@BID_hyr98,0)+ISNULL(@BID_fhyr1,0)+ISNULL(@BID_fhyr98,0)) > 0
 BEGIN 
-  SELECT [有点问题]='促销单据还没有'
-  SELECT [解决方法]='先执行插入单据的脚本再执行此脚本'
+  SELECT [有点问题]='某个促销单被删除，或修改了单据号，存储过程停止更新'
+  SELECT [解决方法]='删除所有单据后用脚本重建单据'
       RETURN		--加个return 退出执行SQL
 END
---SELECT @BID_hyr1+@BID_hyr_85+@BID_hyr95+@BID_hyr98+@BID_fhyr1+@BID_fhyr98
+
 
 --删除会员日,非处方药85折的品种杂项
 --DELETE FROM PM_Detail WHERE billid = @BID_hyr85 AND P_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr1))
