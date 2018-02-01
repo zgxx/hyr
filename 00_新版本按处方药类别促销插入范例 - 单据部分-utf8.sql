@@ -1,4 +1,21 @@
 ﻿
+--获得单据号对应的billid，准备插入促销单据,如果存在任意一个billid不为null，则break
+DECLARE @BID_hyr1 INT,@BID_hyr85 INT,@BID_hyr95 INT,@BID_hyr98 INT, @BID_fhyr1 INT,@BID_fhyr98 INT
+SELECT @BID_hyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00020'   --门店版2018 会员日 选定不打折品种
+SELECT @BID_hyr85 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00021'	 --门店版2018 会员日 非处方品种85折
+SELECT @BID_hyr95 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00022'	 --门店版2018 会员日 处方药95折
+SELECT @BID_hyr98 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00023'   --门店版2018 会员日 部分品种98折
+
+SELECT @BID_fhyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00030'   --门店版2018 非会员日 选定不打折品种
+SELECT @BID_fhyr98  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00031'   --门店版2018 非会员日 会员98折
+
+--IF (@BID_hyr1+@BID_hyr85+@BID_hyr95+@BID_hyr98+@BID_fhyr1+@BID_fhyr98) IS NOT NULL 
+IF (ISNULL(@BID_hyr1,0)+ISNULL(@BID_hyr85,0)+ISNULL(@BID_hyr95,0)+ISNULL(@BID_hyr98,0)+ISNULL(@BID_fhyr1,0)+ISNULL(@BID_fhyr98,0)) > 0
+BEGIN 
+  SELECT [有点问题]='此脚本已经被执行过，或存在单据号一样的促销单'
+  SELECT [解决方法]='请不要重复执行，或先删除对应促销单'
+      RETURN		--加个return 退出执行SQL
+END
 
 --先将几种打折的比例，单据号，和备注插入临时表
 IF exists (select * from tempdb..sysobjects where id = object_id('tempdb..#CxZKTemp'))
