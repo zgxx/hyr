@@ -21,6 +21,20 @@ END
 IF exists (select * from tempdb..sysobjects where id = object_id('tempdb..#CxZKTemp'))
 DROP table [dbo].[#CxZKTemp]
 CREATE TABLE [dbo].[#CxZKTemp]([ZKL] NUMERIC(18,2) NOT NULL,[BNUM] VARCHAR(3) NOT NULL,[NOTE] VARCHAR(80) NOT NULL,[type] INT NOT NULL)	--type为1是会员日当天
+INSERT INTO #CxZKTemp (ZKL,BNUM,NOTE,type)
+SELECT 1.00,'20','门店版2018 会员日 选定不打折品种',1 UNION ALL 
+SELECT 0.85,'21','门店版2018 会员日 非处方品种85折',1 UNION ALL 
+SELECT 0.95,'22','门店版2018 会员日 处方药95折',1 UNION ALL 
+SELECT 0.98,'23','门店版2018 会员日 部分品种98折',1 UNION ALL 
+SELECT 0.98,'30','门店版2018 非会员日 选定不打折品种',0 UNION ALL 
+SELECT 0.98,'31','门店版2018 非会员日 会员98折',0
+
+--SELECT * FROM #CxZKTemp
+/*
+--这个方法sql2000不能用
+IF exists (select * from tempdb..sysobjects where id = object_id('tempdb..#CxZKTemp'))
+DROP table [dbo].[#CxZKTemp]
+CREATE TABLE [dbo].[#CxZKTemp]([ZKL] NUMERIC(18,2) NOT NULL,[BNUM] VARCHAR(3) NOT NULL,[NOTE] VARCHAR(80) NOT NULL,[type] INT NOT NULL)	--type为1是会员日当天
 INSERT INTO #CxZKTemp VALUES 
 (1.00,'20','门店版2018 会员日 选定不打折品种',1),
 (0.85,'21','门店版2018 会员日 非处方品种85折',1),
@@ -28,6 +42,7 @@ INSERT INTO #CxZKTemp VALUES
 (0.98,'23','门店版2018 会员日 部分品种98折',1),
 (0.98,'30','门店版2018 非会员日 选定不打折品种',0),
 (0.98,'31','门店版2018 非会员日 会员98折',0)
+*/
 
 DECLARE @ZKL1 NUMERIC(18,2),@BNUM1 VARCHAR(3),@NOTE1 VARCHAR(80),@DBID1 INT,
 @ZKL2 NUMERIC(18,2),@BNUM2 VARCHAR(3),@NOTE2 VARCHAR(80),@DBID2 INT,
@@ -54,7 +69,7 @@ BEGIN
 	SELECT @DBID1 = MAX(billid) FROM PM_Index    --获得插入后的billid
 
 	--插入PM_ClientStock
-	INSERT INTO PM_ClientStock (billid,mode,data_id,Dts_Detail_ID) VALUES(@DBID1,0,0,0),(@DBID1,1,0,0)
+	INSERT INTO PM_ClientStock (billid,mode,data_id,Dts_Detail_ID) SELECT @DBID1,0,0,0 UNION ALL SELECT @DBID1,1,0,0
 /*
 	--开始插入PM_Detail
 	INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
@@ -87,7 +102,7 @@ BEGIN
 	SELECT @DBID2 = MAX(billid) FROM PM_Index    --获得插入后的billid
 
 	--插入PM_ClientStock
-	INSERT INTO PM_ClientStock (billid,mode,data_id,Dts_Detail_ID) VALUES(@DBID2,0,0,0),(@DBID2,1,0,0)
+	INSERT INTO PM_ClientStock (billid,mode,data_id,Dts_Detail_ID) SELECT @DBID2,0,0,0 UNION ALL SELECT @DBID2,1,0,0
 /*
 	--开始插入PM_Detail
 	INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)

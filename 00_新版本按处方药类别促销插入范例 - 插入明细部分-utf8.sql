@@ -1,11 +1,12 @@
 ﻿
+--加入作业系统，每天自动更新新品种，时间早上8点开始每隔4小时执行一次
  
 --提取数据插入临时表，为插入促销明细准备
-IF exists (select * from tempdb..sysobjects where id = object_id('tempdb..##CxTemp'))
-DROP table [dbo].[##CxTemp]
+IF exists (select * from tempdb..sysobjects where id = object_id('tempdb..#CxTemp'))
+DROP table [dbo].[#CxTemp]
 GO
 
-CREATE TABLE [dbo].[##CxTemp](
+CREATE TABLE [dbo].[#CxTemp](
 	[P_ID] [int] NOT NULL,
 	[u_id] [int] NOT NULL,
 	[retailPrice] NUMERIC(18,4)  NOT NULL,
@@ -17,15 +18,15 @@ CREATE TABLE [dbo].[##CxTemp](
 )
 
 /*
-SELECT * FROM ##CxTemp
+SELECT * FROM #CxTemp
 
 SELECT Class AS 打折力度,CASE WHEN type = 0 THEN '非会员日' ELSE '会员日' END AS 类别,
-CASE WHEN profit_rate < 0 THEN '负毛利数量' ELSE '' END AS 盈亏,COUNT(1) AS 所有数量 FROM ##CxTemp 
+CASE WHEN profit_rate < 0 THEN '负毛利数量' ELSE '' END AS 盈亏,COUNT(1) AS 所有数量 FROM #CxTemp 
 GROUP BY Class,type,CASE WHEN profit_rate < 0 THEN '负毛利数量' ELSE '' END
 ORDER BY 类别,打折力度,盈亏 DESC
 
 SELECT C.Class AS 打折力度,CASE WHEN C.type = 0 THEN '非会员日' ELSE '会员日' END AS 类别,
-CASE WHEN C.profit_rate < 0 THEN '负毛利数量' ELSE '' END AS 盈亏,COUNT(1) AS 有库存数量 FROM ##CxTemp C,
+CASE WHEN C.profit_rate < 0 THEN '负毛利数量' ELSE '' END AS 盈亏,COUNT(1) AS 有库存数量 FROM #CxTemp C,
 (SELECT p_id,SUM(1) AS kc FROM s_storehouse GROUP BY p_id) ST  --总库存商品数
  WHERE C.P_ID = ST.p_id
 GROUP BY C.Class,C.type,CASE WHEN C.profit_rate < 0 THEN '负毛利数量' ELSE '' END
@@ -33,7 +34,7 @@ ORDER BY 类别,打折力度,盈亏 DESC
 */
 
 
-INSERT INTO ##CxTemp
+INSERT INTO #CxTemp
 --会员日,非处方药85折的品种
 SELECT DISTINCT P.Product_ID AS P_ID,P.u_id,ISNULL(PXMD.retailPrice,0) AS retailPrice, ISNULL(PXMD.costp,0) AS costp,ISNULL(PXMD.VipPrice,0) AS VipPrice,
 CONVERT(NUMERIC(18,4),(ISNULL(PXMD.retailPrice,0) - ISNULL(costp,0))/ISNULL(PXMD.retailPrice,9999)) AS MLL,  --毛利率
@@ -54,7 +55,7 @@ AND P.name NOT LIKE '%瑾植%'
 ORDER BY MLL
 
 
-INSERT INTO ##CxTemp
+INSERT INTO #CxTemp
 --会员日,处方药95折的品种，包含冷链
 SELECT DISTINCT P.Product_ID AS P_ID,P.u_id,ISNULL(PXMD.retailPrice,0) AS retailPrice, ISNULL(PXMD.costp,0) AS costp,ISNULL(PXMD.VipPrice,0) AS VipPrice,
 CONVERT(NUMERIC(18,4),(ISNULL(PXMD.retailPrice,0) - ISNULL(costp,0))/ISNULL(PXMD.retailPrice,9999)) AS MLL,  --毛利率
@@ -71,7 +72,7 @@ AND (P.OTCFlag >0 OR P.ColdStore = 1 OR P.Product_ID IN (7310))	--7310代表新�
 ORDER BY MLL
 
 
-INSERT INTO ##CxTemp
+INSERT INTO #CxTemp
 --会员日,部分98折的品种
 SELECT DISTINCT P.Product_ID AS P_ID,P.u_id,ISNULL(PXMD.retailPrice,0) AS retailPrice, ISNULL(PXMD.costp,0) AS costp,ISNULL(PXMD.VipPrice,0) AS VipPrice,
 CONVERT(NUMERIC(18,4),(ISNULL(PXMD.retailPrice,0) - ISNULL(costp,0))/ISNULL(PXMD.retailPrice,9999)) AS MLL,  --毛利率
@@ -88,7 +89,7 @@ AND (P.Factory LIKE '武汉国灸科技%' OR P.Factory LIKE '%奇力康%')		--�
 ORDER BY MLL
 
 
-INSERT INTO ##CxTemp
+INSERT INTO #CxTemp
 --非会员日,98折的品种,凡是有会员价商品不参与98折，按普通会员价执行
 SELECT DISTINCT P.Product_ID AS P_ID,P.u_id,ISNULL(PXMD.retailPrice,0) AS retailPrice, ISNULL(PXMD.costp,0) AS costp,ISNULL(PXMD.VipPrice,0) AS VipPrice,
 CONVERT(NUMERIC(18,4),(ISNULL(PXMD.retailPrice,0) - ISNULL(costp,0))/ISNULL(PXMD.retailPrice,9999)) AS MLL,  --毛利率
@@ -136,27 +137,29 @@ END
 --会员日 非处方品种85折
 INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
 SELECT @BID_hyr85,C.P_ID,C.u_id,0,0,C.class,0,1,0,0,0,C.profit_rate,0
-FROM ##CxTemp C LEFT JOIN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr85)) PMD ON PMD.p_id = C.P_ID
+FROM #CxTemp C LEFT JOIN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr85)) PMD ON PMD.p_id = C.P_ID
 WHERE C.CLASS = 0.85 AND C.type = 1  AND PMD.p_id IS NULL
 AND C.P_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr1))		--排除特定选定品种不打折
 
 --会员日 处方药95折
 INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
 SELECT @BID_hyr95,C.P_ID,C.u_id,0,0,C.class,0,1,0,0,0,C.profit_rate,0
-FROM ##CxTemp C LEFT JOIN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr95)) PMD ON PMD.p_id = C.P_ID
+FROM #CxTemp C LEFT JOIN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr95)) PMD ON PMD.p_id = C.P_ID
 WHERE C.CLASS = 0.95 AND C.type = 1  AND PMD.p_id IS NULL
 AND C.P_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr1))		--排除特定选定品种不打折
 
 --会员日 部分品种98折
 INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
 SELECT @BID_hyr98,C.P_ID,C.u_id,0,0,C.class,0,1,0,0,0,C.profit_rate,0
-FROM ##CxTemp C LEFT JOIN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr98)) PMD ON PMD.p_id = C.P_ID
+FROM #CxTemp C LEFT JOIN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr98)) PMD ON PMD.p_id = C.P_ID
 WHERE C.CLASS = 0.98 AND C.type = 1  AND PMD.p_id IS NULL
 AND C.P_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr1))		--排除特定选定品种不打折
 ------
 --非会员日 会员98折
 INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
 SELECT @BID_fhyr98,C.P_ID,C.u_id,0,0,C.class,0,1,0,0,0,C.profit_rate,0
-FROM ##CxTemp C LEFT JOIN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_fhyr98)) PMD ON PMD.p_id = C.P_ID
+FROM #CxTemp C LEFT JOIN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_fhyr98)) PMD ON PMD.p_id = C.P_ID
 WHERE C.CLASS = 0.98 AND C.type = 0  AND PMD.p_id IS NULL
 AND C.P_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_fhyr1))		--排除特定选定品种不打折
+
+
