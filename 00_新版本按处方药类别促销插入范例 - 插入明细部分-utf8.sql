@@ -10,9 +10,10 @@ CREATE TABLE [dbo].[##CxTemp](
 	[P_ID] [int] NOT NULL,
 	[u_id] [int] NOT NULL,
 	[retailPrice] NUMERIC(18,4)  NOT NULL,
+	[VIPretailPrice] NUMERIC(18,4)  NOT NULL,	--打折后的价格
 	[costp] NUMERIC(18,4) NOT NULL,
 	[vipprice] NUMERIC(18,4) NOT NULL,
-	[profit_rate] NUMERIC(18,4) NOT NULL,
+	[profit_rate] NUMERIC(18,4) NOT NULL,			--折后毛利率
 	[Class] NUMERIC(18,2) NOT NULL,   --代表打折力度
 	[type] INT NOT NULL,		--1代表会员日时，0代表非会员日时
 )
@@ -37,8 +38,9 @@ ORDER BY 类别,打折力度,盈亏 DESC
 --SET NOCOUNT ON;
 INSERT INTO ##CxTemp
 --会员日,非处方药85折的品种
-SELECT DISTINCT P.Product_ID AS P_ID,P.u_id,ISNULL(PXMD.retailPrice,0) AS retailPrice, ISNULL(PXMD.costp,0) AS costp,ISNULL(PXMD.VipPrice,0) AS VipPrice,
-CONVERT(NUMERIC(18,4),(ISNULL(PXMD.retailPrice,0) - ISNULL(costp,0))/ISNULL(PXMD.retailPrice,9999)) AS MLL,  --毛利率
+SELECT DISTINCT P.Product_ID AS P_ID,P.u_id,ISNULL(PXMD.retailPrice,0) AS retailPrice, ISNULL(PXMD.retailPrice*0.85,0) AS VIPretailPrice,
+ISNULL(PXMD.costp,0) AS costp,ISNULL(PXMD.VipPrice,0) AS VipPrice,
+CONVERT(NUMERIC(18,4),(ISNULL(PXMD.retailPrice*0.85,0) - ISNULL(costp,0))/ISNULL(PXMD.retailPrice*0.85,9999)) AS MLL,  --折后毛利率
 0.85 AS CLASS,1 AS type
 FROM Products P LEFT JOIN
 	( SELECT A.P_id,A.retailPrice,A.VipPrice,CASE WHEN A.PrePrice1 = 0 THEN A.RecBuyPrice ELSE A.PrePrice1 END AS costp,	--,A.PrePrice1,A.RecBuyPrice
@@ -58,8 +60,9 @@ ORDER BY MLL
 
 INSERT INTO ##CxTemp
 --会员日,处方药95折的品种，包含冷链
-SELECT DISTINCT P.Product_ID AS P_ID,P.u_id,ISNULL(PXMD.retailPrice,0) AS retailPrice, ISNULL(PXMD.costp,0) AS costp,ISNULL(PXMD.VipPrice,0) AS VipPrice,
-CONVERT(NUMERIC(18,4),(ISNULL(PXMD.retailPrice,0) - ISNULL(costp,0))/ISNULL(PXMD.retailPrice,9999)) AS MLL,  --毛利率
+SELECT DISTINCT P.Product_ID AS P_ID,P.u_id,ISNULL(PXMD.retailPrice,0) AS retailPrice, ISNULL(PXMD.retailPrice*0.95,0) AS VIPretailPrice,
+ ISNULL(PXMD.costp,0) AS costp,ISNULL(PXMD.VipPrice,0) AS VipPrice,
+CONVERT(NUMERIC(18,4),(ISNULL(PXMD.retailPrice*0.95,0) - ISNULL(costp,0))/ISNULL(PXMD.retailPrice*0.95,9999)) AS MLL,  --折后毛利率
 0.95 AS CLASS,1 AS type
 FROM Products P LEFT JOIN
 ( SELECT A.P_id,A.retailPrice,A.VipPrice,CASE WHEN A.PrePrice1 = 0 THEN A.RecBuyPrice ELSE A.PrePrice1 END AS costp,	--,A.PrePrice1,A.RecBuyPrice
@@ -75,8 +78,9 @@ ORDER BY MLL
 
 INSERT INTO ##CxTemp
 --会员日,部分98折的品种
-SELECT DISTINCT P.Product_ID AS P_ID,P.u_id,ISNULL(PXMD.retailPrice,0) AS retailPrice, ISNULL(PXMD.costp,0) AS costp,ISNULL(PXMD.VipPrice,0) AS VipPrice,
-CONVERT(NUMERIC(18,4),(ISNULL(PXMD.retailPrice,0) - ISNULL(costp,0))/ISNULL(PXMD.retailPrice,9999)) AS MLL,  --毛利率
+SELECT DISTINCT P.Product_ID AS P_ID,P.u_id,ISNULL(PXMD.retailPrice,0) AS retailPrice,  ISNULL(PXMD.retailPrice*0.98,0) AS VIPretailPrice,
+ISNULL(PXMD.costp,0) AS costp,ISNULL(PXMD.VipPrice,0) AS VipPrice,
+CONVERT(NUMERIC(18,4),(ISNULL(PXMD.retailPrice*0.98,0) - ISNULL(costp,0))/ISNULL(PXMD.retailPrice*0.98,9999)) AS MLL,  --折后毛利率
 0.98 AS CLASS,1 AS type
 FROM Products P LEFT JOIN
 ( SELECT A.P_id,A.retailPrice,A.VipPrice,CASE WHEN A.PrePrice1 = 0 THEN A.RecBuyPrice ELSE A.PrePrice1 END AS costp,	--,A.PrePrice1,A.RecBuyPrice
@@ -92,8 +96,9 @@ ORDER BY MLL
 
 INSERT INTO ##CxTemp
 --非会员日,98折的品种,凡是有会员价商品不参与98折，按普通会员价执行
-SELECT DISTINCT P.Product_ID AS P_ID,P.u_id,ISNULL(PXMD.retailPrice,0) AS retailPrice, ISNULL(PXMD.costp,0) AS costp,ISNULL(PXMD.VipPrice,0) AS VipPrice,
-CONVERT(NUMERIC(18,4),(ISNULL(PXMD.retailPrice,0) - ISNULL(costp,0))/ISNULL(PXMD.retailPrice,9999)) AS MLL,  --毛利率
+SELECT DISTINCT P.Product_ID AS P_ID,P.u_id,ISNULL(PXMD.retailPrice,0) AS retailPrice, ISNULL(PXMD.retailPrice*0.98,0) AS VIPretailPrice,
+ISNULL(PXMD.costp,0) AS costp,ISNULL(PXMD.VipPrice,0) AS VipPrice,
+CONVERT(NUMERIC(18,4),(ISNULL(PXMD.retailPrice*0.98,0) - ISNULL(costp,0))/ISNULL(PXMD.retailPrice*0.98,9999)) AS MLL,  --折后毛利率
 0.98 AS CLASS,0 AS type
 FROM Products P LEFT JOIN
 ( SELECT A.P_id,A.retailPrice,A.VipPrice,CASE WHEN A.PrePrice1 = 0 THEN A.RecBuyPrice ELSE A.PrePrice1 END AS costp,	--,A.PrePrice1,A.RecBuyPrice
@@ -217,3 +222,7 @@ WHERE PMD.p_id = C.P_ID
 AND C.CLASS = 0.95 AND C.type = 1 AND PMD.billid = @BID_hyr95
 AND C.profit_rate < 0
 AND vipDayQty <> 2
+
+IF exists (select * from tempdb..sysobjects where id = object_id('tempdb..##CxTemp'))
+DROP table [dbo].[##CxTemp]
+GO
