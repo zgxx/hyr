@@ -1,4 +1,4 @@
-﻿
+﻿--2018年2月1日16:58:06，zgx
 --准备插入促销单据,如果存在任意一个单据号存在，则停止插入单据
 DECLARE @BID_hyr1 INT,@BID_hyr85 INT,@BID_hyr95 INT,@BID_hyr98 INT, @BID_fhyr1 INT,@BID_fhyr98 INT
 SELECT @BID_hyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00020'   --门店版2018 会员日 选定打折品种
