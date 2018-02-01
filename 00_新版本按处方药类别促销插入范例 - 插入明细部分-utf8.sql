@@ -177,3 +177,20 @@ WHERE C.CLASS = 0.98 AND C.type = 0  AND PMD.p_id IS NULL
 AND C.P_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_fhyr1))		--排除特定选定品种不打折
 
 
+---------------------------------------
+
+--将会员85折后,正毛利的品种的每人每日限购数量设置为0
+UPDATE PM_Detail SET vipDayQty = 0
+--SELECT DISTINCT PMD.p_id ,CONVERT(NUMERIC(18,4),(ISNULL(PXMD.retailPrice,0) - ISNULL(PXMD.costp,0))/ISNULL(PXMD.retailPrice,9999)) AS MLL  --毛利率
+FROM PM_Detail PMD,##CxTemp C,
+Products P LEFT JOIN
+( SELECT A.P_id,A.retailPrice,A.VipPrice,CASE WHEN A.PrePrice1 = 0 THEN A.RecBuyPrice ELSE A.PrePrice1 END AS costp,
+A.Y_id,A.U_id FROM Px_price A,Products P WHERE a.Y_id IN 
+	 (SELECT max(B.Y_id) AS Y_id FROM Px_price AS B WHERE A.P_id = B.p_id ) AND P.U_ID = A.U_id AND P.Product_ID = A.P_id
+	  AND A.retailPrice > 0 
+	 --门店价格体系，如果配送价没有则用最近进价
+ ) AS PXMD ON P.Product_ID = PXMD.P_id AND P.U_ID = PXMD.U_id
+WHERE PMD.p_id = C.P_ID AND C.P_ID = P.Product_ID
+AND PMD.billid = @BID_hyr85
+AND ISNULL(PXMD.retailPrice,0) - ISNULL(PXMD.costp,0) >= 0
+AND vipDayQty <> 0
