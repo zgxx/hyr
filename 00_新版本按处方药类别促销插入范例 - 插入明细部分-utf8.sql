@@ -31,6 +31,7 @@ CASE WHEN C.profit_rate < 0 THEN '负毛利数量' ELSE '' END AS 盈亏,COUNT(1
  WHERE C.P_ID = ST.p_id
 GROUP BY C.Class,C.type,CASE WHEN C.profit_rate < 0 THEN '负毛利数量' ELSE '' END
 ORDER BY 类别,打折力度,盈亏 DESC
+
 */
 
 --SET NOCOUNT ON;
