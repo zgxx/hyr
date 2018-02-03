@@ -154,7 +154,7 @@ DECLARE @DBIDtj INT
 	enddate,begintime,endtime,weeks,days,RetailBill,SaleBill,VipType,p_id,MinPQty,MinMoney,SumSpeP,SumDisP,ChangeOne,
 	Dts_BillID,Factory,LimitDays,MaxQty,MaxPCount,VipMaxQty,VipMaxPCount)
 	VALUES(
-	'2018-02-01 00:00:00.000','CX-180201-00010',10,2,'门店版2018 特定品种手动指定价格，限定50个',2,CONVERT(VARCHAR(10),GETDATE(),23),'0','2018-02-01 00:00:00.000','2030-12-31 00:00:00.000',
+	'2018-02-01 00:00:00.000','CX-180201-00010',10,2,'2018-02-03 14:16:37，门店版2018,手动指定价格品种,限定50个,超过自动删除',2,CONVERT(VARCHAR(10),GETDATE(),23),'0','2018-02-01 00:00:00.000','2030-12-31 00:00:00.000',
 	'1900-01-01 00:00:00.000','1900-01-01 23:59:59.000','1111111','11111111111111111111111111111111','1',0,0,0,'0.0000','0.0000','0','0','0','0',
 	' ','1','0.0000','0','0.0000','0')
 

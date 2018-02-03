@@ -163,7 +163,12 @@ DELETE FROM PM_Detail WHERE billid = @BID_hyr98 AND P_ID NOT IN (SELECT p_id FRO
 --删除非会员日体系里，错误的品种
 DELETE FROM PM_Detail WHERE billid = @BID_fhyr98 AND P_ID NOT IN (SELECT p_id FROM zgxCxTemp C WHERE C.CLASS = 0.98 AND C.type = 0)
 
+--如果手动添加商品特价促销品种超过50个，会被自动剔除最后加入的
+DELETE FROM PM_Detail WHERE 
+detail_id NOT IN  (SELECT TOP 50 detail_id FROM PM_Detail PMD1 WHERE PMD1.billid IN (@BID_tdpz) ORDER BY PMD1.detail_id)
+AND billid IN (@BID_tdpz)
 
+--------------------------------------------------------
 --开始插入PM_Detail的明细
 --会员日 非处方品种85折
 INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
@@ -234,5 +239,9 @@ WHERE PMD.p_id = C.P_ID
 AND C.CLASS = 0.95 AND C.type = 1 AND PMD.billid = @BID_hyr95
 AND C.profit_rate < 0
 AND vipDayQty <> 2
+
+--更新明细后对手动添加商品的单据的备注加入时间，供参考
+UPDATE PM_Index SET note = CONVERT(VARCHAR(20),GETDATE(),120)+SUBSTRING(note,20,100)
+WHERE billid = @BID_tdpz
 
 TRUNCATE TABLE zgxCxTemp
