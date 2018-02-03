@@ -1,5 +1,5 @@
---2018年2月3日11:36:31，zgx
-
+--2018年2月3日15:01:46，zgx
+--ansi_添加部分锁价_实体表
 --构建促销明细的实体表
 IF EXISTS (SELECT * FROM dbo.sysobjects WHERE id = object_id(N'[dbo].[zgxCxTemp]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
 DROP table [dbo].[zgxCxTemp]
