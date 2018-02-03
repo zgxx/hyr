@@ -22,12 +22,12 @@ ORDER BY 类别,打折力度,盈亏 DESC
 
 --检查商品特价促销的商品是否被会员日体系剔除
 SELECT * FROM PM_Detail WHERE billid IN 
-(SELECT billid FROM PM_Index WHERE billnumber = 'CX-180101-00021') 
-AND p_id IN (SELECT Product_ID FROM Products WHERE Code IN ('131842'))
+(SELECT billid FROM PM_Index WHERE billnumber = 'CX-180101-00021')  --非处方85折
+AND p_id IN (SELECT Product_ID FROM Products WHERE Code IN ('131842'))  --午时茶
 
 */
 
---SET NOCOUNT ON;
+SET NOCOUNT ON;
 INSERT INTO zgxCxTemp
 --会员日,非处方药85折的品种
 SELECT DISTINCT P.Product_ID AS P_ID,P.u_id,ISNULL(PXMD.retailPrice,0) AS retailPrice, ISNULL(PXMD.retailPrice*0.85,0) AS VIPretailPrice,
@@ -136,7 +136,7 @@ BEGIN
       RETURN		--加个return 退出执行SQL
 END
 
---SET NOCOUNT OFF;
+SET NOCOUNT OFF;
 
 --删除会员日体系里，被指定忽略的品种
 DELETE FROM PM_Detail WHERE billid IN (@BID_hyr85,@BID_hyr95,@BID_hyr98) 
