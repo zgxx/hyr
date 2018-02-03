@@ -16,6 +16,7 @@ md D:\TempFolderZGX
 ECHO 复制脚本和样式库
 copy /y *.sql D:\TempFolderZGX\
 copy /y 00_门店查询会员日负毛利品种，以及建议零售价.sql D:\成都海翔软件有限公司\
+copy /y 00_门店查询会员日负毛利品种，以及建议零售价.xlsx D:\成都海翔软件有限公司\
 
 ECHO 调用脚本D:\TempFolderZGX\AutoEXC_name.sql ╮(╯_╰)╭
 ::-U 数据库登陆名，-P 密码，在下面修改

@@ -1,7 +1,7 @@
 echo 开始更新会员日明细,请勿关闭
 @echo off 
 if "%1"=="h" goto begin 
-::隐藏窗口
+
 start mshta vbscript:createobject("wscript.shell").run("""%~nx0"" h",0)(window.close)&&exit 
 
 :begin 
