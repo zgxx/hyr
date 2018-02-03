@@ -150,9 +150,12 @@ AND (
     ) 
 
 --删除非会员日体系里，被指定忽略的品种
-DELETE FROM PM_Detail WHERE billid = @BID_fhyr98 
-AND P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_fhyr1))
-AND P_ID IN (SELECT p_id FROM PM_Detail WHERE billid = @BID_tdpz) --单独剔除商品特价促销品种
+DELETE FROM PM_Detail WHERE billid IN (@BID_fhyr98)
+AND (
+  P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_fhyr1))    --门店版2018 会员日 选定打折品种
+  OR 
+  P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_tdpz))   --剔除商品特价促销品种
+    ) 
 
 
 --删除会员日体系里，错误的品种
