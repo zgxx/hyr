@@ -5,6 +5,9 @@ tasklist |findstr /i "HdSvr.exe"
 if %errorlevel%==0 (goto 1) else (goto 2)
 
 :1
+ECHO 首先先打开海翔把所有促销都删除再继续
+pause
+
 for /l %%i in (1,1,3) do echo.
 ECHO 建立临时文件夹和目标文件夹
 rd /s /q "D:\TempFolderZGX"
@@ -28,7 +31,7 @@ echo xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 echo xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 echo xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 echo                   本机不是服务器
-echo           	     需要在服务器上运行
+echo                 需要在服务器上运行
 echo                 指插有加密狗的电脑
 echo xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 echo xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
