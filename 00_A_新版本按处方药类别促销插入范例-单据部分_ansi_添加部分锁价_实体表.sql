@@ -1,6 +1,6 @@
-ï»¿--2018å¹´2æœˆ3æ—¥11:36:31ï¼Œzgx
+--2018Äê2ÔÂ3ÈÕ11:36:31£¬zgx
 
---æ„å»ºä¿ƒé”€æ˜ç»†çš„å®ä½“è¡¨
+--¹¹½¨´ÙÏúÃ÷Ï¸µÄÊµÌå±í
 IF EXISTS (SELECT * FROM dbo.sysobjects WHERE id = object_id(N'[dbo].[zgxCxTemp]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
 DROP table [dbo].[zgxCxTemp]
 GO
@@ -9,12 +9,12 @@ CREATE TABLE [dbo].[zgxCxTemp](
 	[P_ID] [int] NOT NULL,
 	[u_id] [int] NOT NULL,
 	[retailPrice] NUMERIC(18,4)  NOT NULL,
-	[VIPretailPrice] NUMERIC(18,4)  NOT NULL,	--æ‰“æŠ˜åçš„ä»·æ ¼
+	[VIPretailPrice] NUMERIC(18,4)  NOT NULL,	--´òÕÛºóµÄ¼Û¸ñ
 	[costp] NUMERIC(18,4) NOT NULL,
 	[vipprice] NUMERIC(18,4) NOT NULL,
-	[profit_rate] NUMERIC(18,4) NOT NULL,			--æŠ˜åæ¯›åˆ©ç‡
-	[Class] NUMERIC(18,2) NOT NULL,   --ä»£è¡¨æ‰“æŠ˜åŠ›åº¦
-	[type] INT NOT NULL,		--1ä»£è¡¨ä¼šå‘˜æ—¥æ—¶ï¼Œ0ä»£è¡¨éä¼šå‘˜æ—¥æ—¶
+	[profit_rate] NUMERIC(18,4) NOT NULL,			--ÕÛºóÃ«ÀûÂÊ
+	[Class] NUMERIC(18,2) NOT NULL,   --´ú±í´òÕÛÁ¦¶È
+	[type] INT NOT NULL,		--1´ú±í»áÔ±ÈÕÊ±£¬0´ú±í·Ç»áÔ±ÈÕÊ±
 )ON [PRIMARY]
 
 CREATE NONCLUSTERED INDEX zgxCxTemp ON dbo.zgxCxTemp
@@ -22,66 +22,66 @@ CREATE NONCLUSTERED INDEX zgxCxTemp ON dbo.zgxCxTemp
 	[Class],[P_ID],[type]  
 )
 --INCLUDE([profit_rate],[u_id],[retailPrice],[VIPretailPrice],[costp])WITH (SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF)
-ON [PRIMARY]		--INCLUDEåœ¨sql2000ä¸æ”¯æŒ
+ON [PRIMARY]		--INCLUDEÔÚsql2000²»Ö§³Ö
 GO
 
 --SELECT * FROM zgxCxTemp
 
---å‡†å¤‡æ’å…¥ä¿ƒé”€å•æ®,å¦‚æœå­˜åœ¨ä»»æ„ä¸€ä¸ªå•æ®å·å­˜åœ¨ï¼Œåˆ™åœæ­¢æ’å…¥å•æ®
+--×¼±¸²åÈë´ÙÏúµ¥¾İ,Èç¹û´æÔÚÈÎÒâÒ»¸öµ¥¾İºÅ´æÔÚ£¬ÔòÍ£Ö¹²åÈëµ¥¾İ
 DECLARE @BID_hyr1 INT,@BID_hyr85 INT,@BID_hyr95 INT,@BID_hyr98 INT, @BID_fhyr1 INT,@BID_fhyr98 INT,@BID_tdpz INT
---SELECT @BID_hyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00020'   --é—¨åº—ç‰ˆ2018 ä¼šå‘˜æ—¥ é€‰å®šæ‰“æŠ˜å“ç§
+--SELECT @BID_hyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00020'   --ÃÅµê°æ2018 »áÔ±ÈÕ Ñ¡¶¨´òÕÛÆ·ÖÖ
 SELECT @BID_hyr1  = 0
-SELECT @BID_hyr85 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00021'	 --é—¨åº—ç‰ˆ2018 ä¼šå‘˜æ—¥ éå¤„æ–¹å“ç§85æŠ˜
-SELECT @BID_hyr95 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00022'	 --é—¨åº—ç‰ˆ2018 ä¼šå‘˜æ—¥ å¤„æ–¹è¯95æŠ˜
-SELECT @BID_hyr98 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00023'   --é—¨åº—ç‰ˆ2018 ä¼šå‘˜æ—¥ éƒ¨åˆ†å“ç§98æŠ˜
+SELECT @BID_hyr85 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00021'	 --ÃÅµê°æ2018 »áÔ±ÈÕ ·Ç´¦·½Æ·ÖÖ85ÕÛ
+SELECT @BID_hyr95 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00022'	 --ÃÅµê°æ2018 »áÔ±ÈÕ ´¦·½Ò©95ÕÛ
+SELECT @BID_hyr98 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00023'   --ÃÅµê°æ2018 »áÔ±ÈÕ ²¿·ÖÆ·ÖÖ98ÕÛ
 
---SELECT @BID_fhyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00030'   --é—¨åº—ç‰ˆ2018 éä¼šå‘˜æ—¥ é€‰å®šæ‰“æŠ˜å“ç§
+--SELECT @BID_fhyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00030'   --ÃÅµê°æ2018 ·Ç»áÔ±ÈÕ Ñ¡¶¨´òÕÛÆ·ÖÖ
 SELECT @BID_fhyr1  = 0
-SELECT @BID_fhyr98  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00031'   --é—¨åº—ç‰ˆ2018 éä¼šå‘˜æ—¥ ä¼šå‘˜98æŠ˜
+SELECT @BID_fhyr98  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00031'   --ÃÅµê°æ2018 ·Ç»áÔ±ÈÕ »áÔ±98ÕÛ
 
-SELECT @BID_tdpz  = billid FROM PM_Index WHERE billnumber = 'CX-180201-00010'   --é—¨åº—ç‰ˆ2018 ç‰¹å®šå“ç§æ‰‹åŠ¨æŒ‡å®šä»·æ ¼ï¼Œé™å®š50ä¸ª
+SELECT @BID_tdpz  = billid FROM PM_Index WHERE billnumber = 'CX-180201-00010'   --ÃÅµê°æ2018 ÌØ¶¨Æ·ÖÖÊÖ¶¯Ö¸¶¨¼Û¸ñ£¬ÏŞ¶¨50¸ö
 
 --IF (@BID_hyr1+@BID_hyr85+@BID_hyr95+@BID_hyr98+@BID_fhyr1+@BID_fhyr98) IS NOT NULL 
 IF (ISNULL(@BID_hyr1,0)+ISNULL(@BID_hyr85,0)+ISNULL(@BID_hyr95,0)+ISNULL(@BID_hyr98,0)+ISNULL(@BID_fhyr1,0)+ISNULL(@BID_fhyr98,0)+ISNULL(@BID_tdpz,0)) > 0
 BEGIN 
-  SELECT [æœ‰ç‚¹é—®é¢˜]='æ­¤è„šæœ¬å·²ç»è¢«æ‰§è¡Œè¿‡ï¼Œæˆ–å­˜åœ¨å•æ®å·å’Œä¸Šé¢ä¸€æ ·çš„ä¿ƒé”€å•'
-  SELECT [è§£å†³æ–¹æ³•]='è¯·ä¸è¦é‡å¤æ‰§è¡Œï¼Œæˆ–å…ˆåˆ é™¤å¯¹åº”ä¿ƒé”€å•'
-      RETURN		--åŠ ä¸ªreturn é€€å‡ºæ‰§è¡ŒSQL
+  SELECT [ÓĞµãÎÊÌâ]='´Ë½Å±¾ÒÑ¾­±»Ö´ĞĞ¹ı£¬»ò´æÔÚµ¥¾İºÅºÍÉÏÃæÒ»ÑùµÄ´ÙÏúµ¥'
+  SELECT [½â¾ö·½·¨]='Çë²»ÒªÖØ¸´Ö´ĞĞ£¬»òÏÈÉ¾³ı¶ÔÓ¦´ÙÏúµ¥'
+      RETURN		--¼Ó¸öreturn ÍË³öÖ´ĞĞSQL
 END
 
---å…ˆå°†å‡ ç§æ‰“æŠ˜çš„æ¯”ä¾‹ï¼Œå•æ®å·ï¼Œå’Œå¤‡æ³¨æ’å…¥ä¸´æ—¶è¡¨
+--ÏÈ½«¼¸ÖÖ´òÕÛµÄ±ÈÀı£¬µ¥¾İºÅ£¬ºÍ±¸×¢²åÈëÁÙÊ±±í
 IF exists (select * from tempdb..sysobjects where id = object_id('tempdb..#CxZKTemp'))
 DROP table [dbo].[#CxZKTemp]
-CREATE TABLE [dbo].[#CxZKTemp]([ZKL] NUMERIC(18,2) NOT NULL,[BNUM] VARCHAR(3) NOT NULL,[NOTE] VARCHAR(80) NOT NULL,[type] INT NOT NULL)	--typeä¸º1æ˜¯ä¼šå‘˜æ—¥å½“å¤©
+CREATE TABLE [dbo].[#CxZKTemp]([ZKL] NUMERIC(18,2) NOT NULL,[BNUM] VARCHAR(3) NOT NULL,[NOTE] VARCHAR(80) NOT NULL,[type] INT NOT NULL)	--typeÎª1ÊÇ»áÔ±ÈÕµ±Ìì
 INSERT INTO #CxZKTemp (ZKL,BNUM,NOTE,type)
---SELECT 1.00,'20','é—¨åº—ç‰ˆ2018 ä¼šå‘˜æ—¥ é€‰å®šæ‰“æŠ˜å“ç§',1 UNION ALL     --å–æ¶ˆä¸ç”¨è¿™ä¸ªæ–¹æ³•
-SELECT 0.85,'21','é—¨åº—ç‰ˆ2018 ä¼šå‘˜æ—¥ è‡ªåŠ¨åŒ–å¯¼å…¥ éå¤„æ–¹å“ç§85æŠ˜',1 UNION ALL 
-SELECT 0.95,'22','é—¨åº—ç‰ˆ2018 ä¼šå‘˜æ—¥ è‡ªåŠ¨åŒ–å¯¼å…¥ å¤„æ–¹è¯95æŠ˜',1 UNION ALL 
-SELECT 0.98,'23','é—¨åº—ç‰ˆ2018 ä¼šå‘˜æ—¥ è‡ªåŠ¨åŒ–å¯¼å…¥ éƒ¨åˆ†å“ç§98æŠ˜',1 UNION ALL 
---SELECT 0.98,'30','é—¨åº—ç‰ˆ2018 éä¼šå‘˜æ—¥ é€‰å®šæ‰“æŠ˜å“ç§',0 UNION ALL 
-SELECT 0.98,'31','é—¨åº—ç‰ˆ2018 éä¼šå‘˜æ—¥ è‡ªåŠ¨åŒ–å¯¼å…¥ ä¼šå‘˜98æŠ˜',0
+--SELECT 1.00,'20','ÃÅµê°æ2018 »áÔ±ÈÕ Ñ¡¶¨´òÕÛÆ·ÖÖ',1 UNION ALL     --È¡Ïû²»ÓÃÕâ¸ö·½·¨
+SELECT 0.85,'21','ÃÅµê°æ2018 »áÔ±ÈÕ ×Ô¶¯»¯µ¼Èë ·Ç´¦·½Æ·ÖÖ85ÕÛ',1 UNION ALL 
+SELECT 0.95,'22','ÃÅµê°æ2018 »áÔ±ÈÕ ×Ô¶¯»¯µ¼Èë ´¦·½Ò©95ÕÛ',1 UNION ALL 
+SELECT 0.98,'23','ÃÅµê°æ2018 »áÔ±ÈÕ ×Ô¶¯»¯µ¼Èë ²¿·ÖÆ·ÖÖ98ÕÛ',1 UNION ALL 
+--SELECT 0.98,'30','ÃÅµê°æ2018 ·Ç»áÔ±ÈÕ Ñ¡¶¨´òÕÛÆ·ÖÖ',0 UNION ALL 
+SELECT 0.98,'31','ÃÅµê°æ2018 ·Ç»áÔ±ÈÕ ×Ô¶¯»¯µ¼Èë »áÔ±98ÕÛ',0
 
 --SELECT * FROM #CxZKTemp
 /*
---æ­¤æ–¹æ³•sql2000ä¸æ”¯æŒ
+--´Ë·½·¨sql2000²»Ö§³Ö
 IF exists (select * from tempdb..sysobjects where id = object_id('tempdb..#CxZKTemp'))
 DROP table [dbo].[#CxZKTemp]
-CREATE TABLE [dbo].[#CxZKTemp]([ZKL] NUMERIC(18,2) NOT NULL,[BNUM] VARCHAR(3) NOT NULL,[NOTE] VARCHAR(80) NOT NULL,[type] INT NOT NULL)	--typeä¸º1æ˜¯ä¼šå‘˜æ—¥å½“å¤©
+CREATE TABLE [dbo].[#CxZKTemp]([ZKL] NUMERIC(18,2) NOT NULL,[BNUM] VARCHAR(3) NOT NULL,[NOTE] VARCHAR(80) NOT NULL,[type] INT NOT NULL)	--typeÎª1ÊÇ»áÔ±ÈÕµ±Ìì
 INSERT INTO #CxZKTemp VALUES 
-(1.00,'20','é—¨åº—ç‰ˆ2018 ä¼šå‘˜æ—¥ é€‰å®šä¸æ‰“æŠ˜å“ç§',1),
-(0.85,'21','é—¨åº—ç‰ˆ2018 ä¼šå‘˜æ—¥ éå¤„æ–¹å“ç§85æŠ˜',1),
-(0.95,'22','é—¨åº—ç‰ˆ2018 ä¼šå‘˜æ—¥ å¤„æ–¹è¯95æŠ˜',1),
-(0.98,'23','é—¨åº—ç‰ˆ2018 ä¼šå‘˜æ—¥ éƒ¨åˆ†å“ç§98æŠ˜',1),
-(0.98,'30','é—¨åº—ç‰ˆ2018 éä¼šå‘˜æ—¥ é€‰å®šä¸æ‰“æŠ˜å“ç§',0),
-(0.98,'31','é—¨åº—ç‰ˆ2018 éä¼šå‘˜æ—¥ ä¼šå‘˜98æŠ˜',0)
+(1.00,'20','ÃÅµê°æ2018 »áÔ±ÈÕ Ñ¡¶¨²»´òÕÛÆ·ÖÖ',1),
+(0.85,'21','ÃÅµê°æ2018 »áÔ±ÈÕ ·Ç´¦·½Æ·ÖÖ85ÕÛ',1),
+(0.95,'22','ÃÅµê°æ2018 »áÔ±ÈÕ ´¦·½Ò©95ÕÛ',1),
+(0.98,'23','ÃÅµê°æ2018 »áÔ±ÈÕ ²¿·ÖÆ·ÖÖ98ÕÛ',1),
+(0.98,'30','ÃÅµê°æ2018 ·Ç»áÔ±ÈÕ Ñ¡¶¨²»´òÕÛÆ·ÖÖ',0),
+(0.98,'31','ÃÅµê°æ2018 ·Ç»áÔ±ÈÕ »áÔ±98ÕÛ',0)
 */
 
 DECLARE @ZKL1 NUMERIC(18,2),@BNUM1 VARCHAR(3),@NOTE1 VARCHAR(80),@DBID1 INT,
 @ZKL2 NUMERIC(18,2),@BNUM2 VARCHAR(3),@NOTE2 VARCHAR(80),@DBID2 INT,
 @PID INT,@UID INT
 
---å¼€å§‹å¾ªç¯ï¼Œæ’å…¥å•†å“æŠ˜æ‰£æŠ˜è®©ä¿ƒé”€çš„å•æ®å’Œæ˜ç»†
---é¦–å…ˆè¦æ’å…¥ä¼šå‘˜æ—¥å½“å¤©çš„
+--¿ªÊ¼Ñ­»·£¬²åÈëÉÌÆ·ÕÛ¿ÛÕÛÈÃ´ÙÏúµÄµ¥¾İºÍÃ÷Ï¸
+--Ê×ÏÈÒª²åÈë»áÔ±ÈÕµ±ÌìµÄ
 DECLARE CURSOR_CX_HYR CURSOR FOR 
 	SELECT zkl,bnum,note FROM #CxZKTemp WHERE type = 1
 OPEN CURSOR_CX_HYR
@@ -89,7 +89,7 @@ OPEN CURSOR_CX_HYR
 WHILE @@FETCH_STATUS = 0
 BEGIN
 
-	--æ’å…¥PM_Index
+	--²åÈëPM_Index
 	INSERT INTO PM_Index (billdate,billnumber,billtype,e_id,note,auditman,auditdate,billstate,begindate,
 	enddate,begintime,endtime,weeks,days,RetailBill,SaleBill,VipType,p_id,MinPQty,MinMoney,SumSpeP,SumDisP,ChangeOne,
 	Dts_BillID,Factory,LimitDays,MaxQty,MaxPCount,VipMaxQty,VipMaxPCount)
@@ -98,12 +98,12 @@ BEGIN
 	'1900-01-01 00:00:00.000','1900-01-01 23:59:59.000','1111111','00000100000000010000000001000000','1',0,0,0,'0.0000','0.0000','0','0','0','0',
 	' ','1','0.0000','0','0.0000','0')
 
-	SELECT @DBID1 = MAX(billid) FROM PM_Index    --è·å¾—æ’å…¥åçš„billid
+	SELECT @DBID1 = MAX(billid) FROM PM_Index    --»ñµÃ²åÈëºóµÄbillid
 
-	--æ’å…¥PM_ClientStock
+	--²åÈëPM_ClientStock
 	INSERT INTO PM_ClientStock (billid,mode,data_id,Dts_Detail_ID) SELECT @DBID1,0,0,0 UNION ALL SELECT @DBID1,1,0,0
 /*
-	--å¼€å§‹æ’å…¥PM_Detail
+	--¿ªÊ¼²åÈëPM_Detail
 	INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
 	SELECT @DBID1,P_ID,u_id,0,0,@ZKL1,0,1,0,0,0,'',0
 	FROM zgxCxTemp WHERE CLASS = @ZKL1 AND type = 1
@@ -114,7 +114,7 @@ CLOSE CURSOR_CX_HYR
 DEALLOCATE CURSOR_CX_HYR
 
 --++++++++++++++++++++++++++++++++++++++
---è¦æ’å…¥éä¼šå‘˜æ—¥çš„
+--Òª²åÈë·Ç»áÔ±ÈÕµÄ
 DECLARE CURSOR_CX_HYR CURSOR FOR 
 	SELECT zkl,bnum,note FROM #CxZKTemp WHERE type = 0
 OPEN CURSOR_CX_HYR
@@ -122,7 +122,7 @@ OPEN CURSOR_CX_HYR
 WHILE @@FETCH_STATUS = 0
 BEGIN
 
-	--æ’å…¥PM_Index
+	--²åÈëPM_Index
 	INSERT INTO PM_Index (billdate,billnumber,billtype,e_id,note,auditman,auditdate,billstate,begindate,
 	enddate,begintime,endtime,weeks,days,RetailBill,SaleBill,VipType,p_id,MinPQty,MinMoney,SumSpeP,SumDisP,ChangeOne,
 	Dts_BillID,Factory,LimitDays,MaxQty,MaxPCount,VipMaxQty,VipMaxPCount)
@@ -131,12 +131,12 @@ BEGIN
 	'1900-01-01 00:00:00.000','1900-01-01 23:59:59.000','1111111','11111011111111101111111110111111','1',0,0,0,'0.0000','0.0000','0','0','0','0',
 	' ','1','0.0000','0','0.0000','0')
 
-	SELECT @DBID2 = MAX(billid) FROM PM_Index    --è·å¾—æ’å…¥åçš„billid
+	SELECT @DBID2 = MAX(billid) FROM PM_Index    --»ñµÃ²åÈëºóµÄbillid
 
-	--æ’å…¥PM_ClientStock
+	--²åÈëPM_ClientStock
 	INSERT INTO PM_ClientStock (billid,mode,data_id,Dts_Detail_ID) SELECT @DBID2,0,0,0 UNION ALL SELECT @DBID2,1,0,0
 /*
-	--å¼€å§‹æ’å…¥PM_Detail
+	--¿ªÊ¼²åÈëPM_Detail
 	INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
 	SELECT @DBID2,P_ID,u_id,0,0,@ZKL2,0,1,0,0,0,'',0
 	FROM zgxCxTemp WHERE CLASS = @ZKL2 AND type = 0
@@ -147,23 +147,23 @@ CLOSE CURSOR_CX_HYR
 DEALLOCATE CURSOR_CX_HYR
 
 
---é¢å¤–æ’å…¥å•†å“ç‰¹ä»·ä¿ƒé”€çš„å•æ®
+--¶îÍâ²åÈëÉÌÆ·ÌØ¼Û´ÙÏúµÄµ¥¾İ
 DECLARE @DBIDtj INT
 --PM_Index
 	INSERT INTO PM_Index (billdate,billnumber,billtype,e_id,note,auditman,auditdate,billstate,begindate,
 	enddate,begintime,endtime,weeks,days,RetailBill,SaleBill,VipType,p_id,MinPQty,MinMoney,SumSpeP,SumDisP,ChangeOne,
 	Dts_BillID,Factory,LimitDays,MaxQty,MaxPCount,VipMaxQty,VipMaxPCount)
 	VALUES(
-	'2018-02-01 00:00:00.000','CX-180201-00010',10,2,'é—¨åº—ç‰ˆ2018 ç‰¹å®šå“ç§æ‰‹åŠ¨æŒ‡å®šä»·æ ¼ï¼Œé™å®š50ä¸ª',2,CONVERT(VARCHAR(10),GETDATE(),23),'0','2018-02-01 00:00:00.000','2030-12-31 00:00:00.000',
+	'2018-02-01 00:00:00.000','CX-180201-00010',10,2,'ÃÅµê°æ2018 ÌØ¶¨Æ·ÖÖÊÖ¶¯Ö¸¶¨¼Û¸ñ£¬ÏŞ¶¨50¸ö',2,CONVERT(VARCHAR(10),GETDATE(),23),'0','2018-02-01 00:00:00.000','2030-12-31 00:00:00.000',
 	'1900-01-01 00:00:00.000','1900-01-01 23:59:59.000','1111111','11111111111111111111111111111111','1',0,0,0,'0.0000','0.0000','0','0','0','0',
 	' ','1','0.0000','0','0.0000','0')
 
-	SELECT @DBIDtj = MAX(billid) FROM PM_Index WHERE billtype = 10    --è·å¾—æ’å…¥åçš„billid
+	SELECT @DBIDtj = MAX(billid) FROM PM_Index WHERE billtype = 10    --»ñµÃ²åÈëºóµÄbillid
 
-	--æ’å…¥PM_ClientStock
+	--²åÈëPM_ClientStock
 	INSERT INTO PM_ClientStock (billid,mode,data_id,Dts_Detail_ID) SELECT @DBIDtj,0,0,0 UNION ALL SELECT @DBIDtj,1,0,0
 	/*
-	--å¼€å§‹æ’å…¥PM_DetailèŒƒä¾‹
+	--¿ªÊ¼²åÈëPM_Detail·¶Àı
 	INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
-	SELECT @DBIDtj,7034,2,0,5.5,1,0,1,0,0,0,'æ­¤è¡Œä¸ºç¤ºä¾‹ï¼Œéœ€è¦åˆ é™¤',0
+	SELECT @DBIDtj,7034,2,0,5.5,1,0,1,0,0,0,'´ËĞĞÎªÊ¾Àı£¬ĞèÒªÉ¾³ı',0
 	*/
