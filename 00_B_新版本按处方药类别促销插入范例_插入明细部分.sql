@@ -30,6 +30,13 @@ AND p_id IN (SELECT Product_ID FROM Products WHERE Code IN ('131842'))  --午时茶
 */
 
 SET NOCOUNT ON;
+
+DECLARE @BID_hyr1A INT,@BID_fhyr1A INT,@BID_tdpzA INT,@BID_zbsjA INT
+SELECT @BID_hyr1A  = billid FROM PM_Index WHERE billnumber =  'CX-180101-00020'   --门店版2018 会员日 选定打折品种
+SELECT @BID_fhyr1A  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00030'   --门店版2018 非会员日 选定打折品种
+SELECT @BID_tdpzA  = billid FROM PM_Index WHERE billnumber =  'CX-180201-00010'   --门店版2018 特定品种手动指定价格，限定50个
+SELECT @BID_zbsjA  = billid FROM PM_Index WHERE billnumber =  'CX-180205-00099'   --总部特定锁价品种，此单据不可修改
+
 INSERT INTO zgxCxTemp
 --会员日,非处方药85折的品种
 SELECT DISTINCT P.Product_ID AS P_ID,P.u_id,ISNULL(PXMD.retailPrice,0) AS retailPrice, ISNULL(PXMD.retailPrice*0.85,0) AS VIPretailPrice,
@@ -49,8 +56,7 @@ AND P.OTCFlag = 0 AND P.ColdStore = 0
 AND P.Factory NOT LIKE '武汉国灸科技%' AND P.Factory NOT LIKE '%奇力康%'
 AND P.Product_ID NOT IN (7310)		--不添加新疆鹿角胶(茎鹿)(纸盒)
 AND P.name NOT LIKE '%瑾植%'
-AND P.Product_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (SELECT billid FROM PM_Index WHERE billnumber = 'CX-180101-00020')) --单独剔除门店版2018 会员日 选定打折品种
-AND P.Product_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (SELECT billid FROM PM_Index WHERE billnumber = 'CX-180201-00010')) --单独剔除商品特价促销品种
+AND P.Product_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr1A,@BID_fhyr1A,@BID_tdpzA,@BID_zbsjA) --剔除
 ORDER BY MLL
 
 
@@ -69,8 +75,7 @@ A.Y_id,A.U_id FROM Px_price A,Products P WHERE a.Y_id IN
  ) AS PXMD ON P.Product_ID = PXMD.P_id AND P.U_ID = PXMD.U_id
 WHERE P.DELETED = 0 AND P.Isdir = 0 AND P.Product_ID NOT IN (8000,8001,8456,19072)	--四个拆零剔除
 AND (P.OTCFlag >0 OR P.ColdStore = 1 OR P.Product_ID IN (7310))	--7310代表新疆鹿角胶(茎鹿)(纸盒)加入会员日95折里
-AND P.Product_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (SELECT billid FROM PM_Index WHERE billnumber = 'CX-180101-00020')) --单独剔除门店版2018 会员日 选定打折品种
-AND P.Product_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (SELECT billid FROM PM_Index WHERE billnumber = 'CX-180201-00010')) --单独剔除商品特价促销品种
+AND P.Product_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr1A,@BID_fhyr1A,@BID_tdpzA,@BID_zbsjA) --剔除
 ORDER BY MLL
 
 
@@ -88,9 +93,7 @@ A.Y_id,A.U_id FROM Px_price A,Products P WHERE a.Y_id IN
 	 --门店价格体系，如果配送价没有则用最近进价
  ) AS PXMD ON P.Product_ID = PXMD.P_id AND P.U_ID = PXMD.U_id
 WHERE P.DELETED = 0 AND P.Isdir = 0
-AND (P.Factory LIKE '武汉国灸科技%' OR P.Factory LIKE '%奇力康%')		--手动添加了这些品种
-AND P.Product_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (SELECT billid FROM PM_Index WHERE billnumber = 'CX-180101-00020')) --单独剔除门店版2018 会员日 选定打折品种
-AND P.Product_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (SELECT billid FROM PM_Index WHERE billnumber = 'CX-180201-00010')) --单独剔除商品特价促销品种
+AND P.Product_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr1A,@BID_fhyr1A,@BID_tdpzA,@BID_zbsjA) --剔除
 ORDER BY MLL
 
 
@@ -110,14 +113,13 @@ A.Y_id,A.U_id FROM Px_price A,Products P WHERE a.Y_id IN
 WHERE  P.DELETED = 0 AND P.Isdir = 0
 AND (PXMD.VipPrice = 0 OR PXMD.VipPrice IS NULL)		--会员价的品种不参与打折
 AND P.Parent_id NOT LIKE '000004000001%' AND P.Product_ID NOT IN (8000,8001,8456,19072) AND P.name NOT LIKE '%瑾植%'
-AND P.Product_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (SELECT billid FROM PM_Index WHERE billnumber = 'CX-180101-00030')) --单独剔除门店版2018 非会员日 选定打折品种
-AND P.Product_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (SELECT billid FROM PM_Index WHERE billnumber = 'CX-180201-00010')) --单独剔除商品特价促销品种
+AND P.Product_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr1A,@BID_fhyr1A,@BID_tdpzA,@BID_zbsjA) --剔除
 ORDER BY MLL
 
 ------------------
 
 --获得单据号对应的billid，准备插入促销明细
-DECLARE @BID_hyr1 INT,@BID_hyr85 INT,@BID_hyr95 INT,@BID_hyr98 INT, @BID_fhyr1 INT,@BID_fhyr98 INT,@BID_tdpz INT
+DECLARE @BID_hyr1 INT,@BID_hyr85 INT,@BID_hyr95 INT,@BID_hyr98 INT, @BID_fhyr1 INT,@BID_fhyr98 INT,@BID_tdpz INT,@BID_zbsj INT
 --SELECT @BID_hyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00020'   --门店版2018 会员日 选定打折品种
 SELECT @BID_hyr1  = 0
 SELECT @BID_hyr85 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00021'	 --门店版2018 会员日 非处方品种85折
@@ -129,6 +131,8 @@ SELECT @BID_fhyr1  = 0
 SELECT @BID_fhyr98  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00031'   --门店版2018 非会员日 会员98折
 
 SELECT @BID_tdpz  = billid FROM PM_Index WHERE billnumber = 'CX-180201-00010'   --门店版2018 特定品种手动指定价格，限定50个
+
+SELECT @BID_zbsj  = billid FROM PM_Index WHERE billnumber = 'CX-180205-00099'   --总部特定锁价品种，此单据不可修改
 
 IF (@BID_hyr1+@BID_hyr85+@BID_hyr95+@BID_hyr98+@BID_fhyr1+@BID_fhyr98+@BID_tdpz) IS NULL 
 --IF (ISNULL(@BID_hyr1,0)+ISNULL(@BID_hyr85,0)+ISNULL(@BID_hyr95,0)+ISNULL(@BID_hyr98,0)+ISNULL(@BID_fhyr1,0)+ISNULL(@BID_fhyr98,0)) > 0
@@ -143,17 +147,21 @@ SET NOCOUNT OFF;
 --删除会员日体系里，被指定忽略的品种
 DELETE FROM PM_Detail WHERE billid IN (@BID_hyr85,@BID_hyr95,@BID_hyr98) 
 AND (
-  P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr1))    --门店版2018 会员日 选定打折品种
+  P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr1))   --门店版2018 会员日 选定打折品种
   OR 
-  P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_tdpz))   --剔除商品特价促销品种
+  P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_tdpz))   --剔除门店添加的商品特价促销品种
+  OR 
+  P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_zbsj))   --剔除总部特定锁价品种
     ) 
 
 --删除非会员日体系里，被指定忽略的品种
 DELETE FROM PM_Detail WHERE billid IN (@BID_fhyr98)
 AND (
-  P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_fhyr1))    --门店版2018 会员日 选定打折品种
+  P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_fhyr1))  --门店版2018 非会员日 选定打折品种
   OR 
-  P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_tdpz))   --剔除商品特价促销品种
+  P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_tdpz))   --剔除门店添加的商品特价促销品种
+  OR 
+  P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_zbsj))   --剔除总部特定锁价品种
     ) 
 
 
@@ -165,10 +173,13 @@ DELETE FROM PM_Detail WHERE billid = @BID_hyr98 AND P_ID NOT IN (SELECT p_id FRO
 --删除非会员日体系里，错误的品种
 DELETE FROM PM_Detail WHERE billid = @BID_fhyr98 AND P_ID NOT IN (SELECT p_id FROM zgxCxTemp C WHERE C.CLASS = 0.98 AND C.type = 0)
 
---如果手动添加商品特价促销品种超过50个，会被自动剔除最后加入的
-DELETE FROM PM_Detail WHERE 
-detail_id NOT IN  (SELECT TOP 50 detail_id FROM PM_Detail PMD1 WHERE PMD1.billid IN (@BID_tdpz) ORDER BY PMD1.detail_id)
-AND billid IN (@BID_tdpz)
+--从门店手动添加商品特价促销品种剔除总部锁价的
+DELETE FROM PM_Detail WHERE billid IN (@BID_tdpz) 
+AND p_id IN (SELECT Product_ID FROM Products WHERE FirstSale = 1) 
+--如果门店手动添加商品特价促销品种超过50个，会被自动剔除最后加入的
+DELETE FROM PM_Detail WHERE billid IN (@BID_tdpz) 
+AND detail_id NOT IN  (SELECT TOP 50 detail_id FROM PM_Detail PMD1 WHERE PMD1.billid IN (@BID_tdpz) ORDER BY PMD1.detail_id)
+ 
 
 --------------------------------------------------------
 --开始插入PM_Detail的明细
@@ -177,28 +188,24 @@ INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqt
 SELECT @BID_hyr85,C.P_ID,C.u_id,0,0,C.class,0,1,0,0,0,C.profit_rate,0
 FROM zgxCxTemp C LEFT JOIN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr85)) PMD ON PMD.p_id = C.P_ID
 WHERE C.CLASS = 0.85 AND C.type = 1  AND PMD.p_id IS NULL
-AND C.P_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr1))		--排除特定选定品种
 
 --会员日 处方药95折
 INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
 SELECT @BID_hyr95,C.P_ID,C.u_id,0,0,C.class,0,1,0,0,0,C.profit_rate,0
 FROM zgxCxTemp C LEFT JOIN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr95)) PMD ON PMD.p_id = C.P_ID
 WHERE C.CLASS = 0.95 AND C.type = 1  AND PMD.p_id IS NULL
-AND C.P_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr1))		--排除特定选定品种
 
 --会员日 部分品种98折
 INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
 SELECT @BID_hyr98,C.P_ID,C.u_id,0,0,C.class,0,1,0,0,0,C.profit_rate,0
 FROM zgxCxTemp C LEFT JOIN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr98)) PMD ON PMD.p_id = C.P_ID
 WHERE C.CLASS = 0.98 AND C.type = 1  AND PMD.p_id IS NULL
-AND C.P_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr1))		--排除特定选定品种
 ------
 --非会员日 会员98折
 INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
 SELECT @BID_fhyr98,C.P_ID,C.u_id,0,0,C.class,0,1,0,0,0,C.profit_rate,0
 FROM zgxCxTemp C LEFT JOIN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_fhyr98)) PMD ON PMD.p_id = C.P_ID
 WHERE C.CLASS = 0.98 AND C.type = 0  AND PMD.p_id IS NULL
-AND C.P_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_fhyr1))		--排除特定选定品种
 
 
 ---------------------------------------
