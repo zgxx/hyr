@@ -1,31 +1,6 @@
 --2018年2月3日15:01:46，zgx
 --ansi_添加部分锁价_实体表
 --构建促销明细的实体表
-IF EXISTS (SELECT * FROM dbo.sysobjects WHERE id = object_id(N'[dbo].[zgxCxTemp]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
-DROP table [dbo].[zgxCxTemp]
-GO
-
-CREATE TABLE [dbo].[zgxCxTemp](
-	[P_ID] [int] NOT NULL,
-	[u_id] [int] NOT NULL,
-	[retailPrice] NUMERIC(18,4)  NOT NULL,
-	[VIPretailPrice] NUMERIC(18,4)  NOT NULL,	--打折后的价格
-	[costp] NUMERIC(18,4) NOT NULL,
-	[vipprice] NUMERIC(18,4) NOT NULL,
-	[profit_rate] NUMERIC(18,4) NOT NULL,			--折后毛利率
-	[Class] NUMERIC(18,2) NOT NULL,   --代表打折力度
-	[type] INT NOT NULL,		--1代表会员日时，0代表非会员日时
-)ON [PRIMARY]
-
-CREATE NONCLUSTERED INDEX zgxCxTemp ON dbo.zgxCxTemp
-(
-	[Class],[P_ID],[type]  
-)
---INCLUDE([profit_rate],[u_id],[retailPrice],[VIPretailPrice],[costp])WITH (SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF)
-ON [PRIMARY]		--INCLUDE在sql2000不支持
-GO
-
---SELECT * FROM zgxCxTemp
 
 --准备插入促销单据,如果存在任意一个单据号存在，则停止插入单据
 DECLARE @BID_hyr1 INT,@BID_hyr85 INT,@BID_hyr95 INT,@BID_hyr98 INT, @BID_fhyr1 INT,@BID_fhyr98 INT,@BID_tdpz INT
@@ -54,7 +29,7 @@ IF exists (select * from tempdb..sysobjects where id = object_id('tempdb..#CxZKT
 DROP table [dbo].[#CxZKTemp]
 CREATE TABLE [dbo].[#CxZKTemp]([ZKL] NUMERIC(18,2) NOT NULL,[BNUM] VARCHAR(3) NOT NULL,[NOTE] VARCHAR(80) NOT NULL,[type] INT NOT NULL)	--type为1是会员日当天
 INSERT INTO #CxZKTemp (ZKL,BNUM,NOTE,type)
---SELECT 1.00,'20','门店版2018 会员日 选定打折品种',1 UNION ALL     --取消不用这个方法
+--SELECT 1.00,'20','门店版2018 会员日 选定打折品种',1 UNION ALL     --取消不用这个单据
 SELECT 0.85,'21','门店版2018 会员日 自动化导入 非处方品种85折',1 UNION ALL 
 SELECT 0.95,'22','门店版2018 会员日 自动化导入 处方药95折',1 UNION ALL 
 SELECT 0.98,'23','门店版2018 会员日 自动化导入 部分品种98折',1 UNION ALL 
