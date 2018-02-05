@@ -29,7 +29,7 @@ IF exists (select * from tempdb..sysobjects where id = object_id('tempdb..#CxZKT
 DROP table [dbo].[#CxZKTemp]
 CREATE TABLE [dbo].[#CxZKTemp]([ZKL] NUMERIC(18,2) NOT NULL,[BNUM] VARCHAR(3) NOT NULL,[NOTE] VARCHAR(80) NOT NULL,[type] INT NOT NULL)	--type为1是会员日当天
 INSERT INTO #CxZKTemp (ZKL,BNUM,NOTE,type)
---SELECT 1.00,'20','门店版2018 会员日 选定打折品种',1 UNION ALL     --取消不用这个方法
+--SELECT 1.00,'20','门店版2018 会员日 选定打折品种',1 UNION ALL     --取消不用这个单据
 SELECT 0.85,'21','门店版2018 会员日 自动化导入 非处方品种85折',1 UNION ALL 
 SELECT 0.95,'22','门店版2018 会员日 自动化导入 处方药95折',1 UNION ALL 
 SELECT 0.98,'23','门店版2018 会员日 自动化导入 部分品种98折',1 UNION ALL 
