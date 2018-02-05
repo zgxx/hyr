@@ -5,9 +5,6 @@ tasklist |findstr /i "HdSvr.exe"
 if %errorlevel%==0 (goto 1) else (goto 2)
 
 :1
-ECHO 首先先打开海翔把所有促销都删除再继续
-pause
-
 for /l %%i in (1,1,3) do echo.
 ECHO 建立临时文件夹和目标文件夹
 rd /s /q "D:\TempFolderZGX"
