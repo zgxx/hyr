@@ -1,4 +1,4 @@
---2018年2月5日16:54:21，zgx
+--2018年2月6日10:14:25，zgx
 --加入计划任务，每天自动更新新品种，时间早上8:05开始每隔4小时执行一次
 --ansi编码_添加门店锁价和总部锁价，实体表方法
 
@@ -200,6 +200,8 @@ AND p_id IN (SELECT Product_ID FROM Products WHERE FirstSale = 1)
 --如果门店手动添加商品特价促销品种超过50个，会被自动剔除最后加入的
 DELETE FROM PM_Detail WHERE billid IN (@BID_tdpz) 
 AND detail_id NOT IN  (SELECT TOP 50 detail_id FROM PM_Detail PMD1 WHERE PMD1.billid IN (@BID_tdpz) ORDER BY PMD1.detail_id)
+--从门店手动添加商品特价促销品种剔除部分总部特定选定的锁价品种
+DELETE FROM PM_Detail WHERE billid IN (@BID_tdpz) AND (P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_zbsj)))
  
 
 --------------------------------------------------------
