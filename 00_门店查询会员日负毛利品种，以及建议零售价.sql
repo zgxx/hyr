@@ -25,4 +25,5 @@ FROM Products P LEFT JOIN (SELECT ST.p_id ,STO.name,SUM(quantity) AS QUANT FROM 
 WHERE P.Product_ID = PXMD.P_id AND P.U_ID = PXMD.U_id AND PXMD.retailPrice <> 0
 AND P.Parent_id NOT LIKE '000004000001%'	--剔除中药饮片
 AND CASE WHEN p.OTCFlag > 0 THEN CONVERT(NUMERIC(18,2),PXMD.retailPrice*0.95-PXMD.costp) ELSE CONVERT(NUMERIC(18,2),PXMD.retailPrice*0.85-PXMD.costp) END < 0
+AND P.Product_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (SELECT billid FROM PM_Index WHERE billnumber = 'CX-180205-00099')) --剔除总部特定锁价品种
 ORDER BY 库存 DESC,处方药类型,折后毛利率
