@@ -3,7 +3,7 @@
 
 --插入促销单据,如果存在任意一个单据号存在，则停止插入单据
 DECLARE @BID_hyr1 INT,@BID_hyr85 INT,@BID_hyr95 INT,@BID_hyr98 INT, @BID_fhyr1 INT,@BID_fhyr98 INT,@BID_tdpz INT
-SELECT @BID_hyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00020'   --会员日 可选限购品种,可自行添加限购品种，门店版2018
+SELECT @BID_hyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00020'   --会员日 自选限购品种 门店版2018
 --SELECT @BID_hyr1  = 0
 SELECT @BID_hyr85 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00021'	 --门店版2018 会员日 非处方品种85折
 SELECT @BID_hyr95 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00022'	 --门店版2018 会员日 处方药95折
@@ -28,7 +28,7 @@ IF exists (select * from tempdb..sysobjects where id = object_id('tempdb..#CxZKT
 DROP table [dbo].[#CxZKTemp]
 CREATE TABLE [dbo].[#CxZKTemp]([ZKL] NUMERIC(18,2) NOT NULL,[BNUM] VARCHAR(3) NOT NULL,[NOTE] VARCHAR(80) NOT NULL,[type] INT NOT NULL)	--type为1是会员日当天
 INSERT INTO #CxZKTemp (ZKL,BNUM,NOTE,type)
-SELECT 1.00,'20','会员日 可选限购品种,可自行添加限购品种，门店版2018',1 UNION ALL
+SELECT 1.00,'20','会员日 自选限购品种 门店版2018',1 UNION ALL
 SELECT 0.85,'21','门店版2018 会员日 自动化导入 非处方品种85折',1 UNION ALL 
 SELECT 0.95,'22','门店版2018 会员日 自动化导入 处方药95折',1 UNION ALL 
 SELECT 0.98,'23','门店版2018 会员日 自动化导入 部分品种98折',1 UNION ALL 
@@ -42,7 +42,7 @@ IF exists (select * from tempdb..sysobjects where id = object_id('tempdb..#CxZKT
 DROP table [dbo].[#CxZKTemp]
 CREATE TABLE [dbo].[#CxZKTemp]([ZKL] NUMERIC(18,2) NOT NULL,[BNUM] VARCHAR(3) NOT NULL,[NOTE] VARCHAR(80) NOT NULL,[type] INT NOT NULL)	--type为1是会员日当天
 INSERT INTO #CxZKTemp VALUES 
-(1.00,'20','门店版2018 会员日 选定不打折品种',1),
+(1.00,'20','会员日 自选限购品种 门店版2018',1),
 (0.85,'21','门店版2018 会员日 非处方品种85折',1),
 (0.95,'22','门店版2018 会员日 处方药95折',1),
 (0.98,'23','门店版2018 会员日 部分品种98折',1),
