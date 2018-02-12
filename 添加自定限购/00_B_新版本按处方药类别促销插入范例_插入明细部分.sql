@@ -1,4 +1,4 @@
---2018年2月8日11:44:49，zgx
+--2018年2月12日14:34:40，zgx
 --加入计划任务，每天自动更新新品种，时间早上8:05开始每隔4小时执行一次
 --ansi编码_添加自定限购
 
@@ -201,6 +201,8 @@ DELETE FROM PM_Detail WHERE billid IN (@BID_tdpz)
 AND detail_id NOT IN  (SELECT TOP 50 detail_id FROM PM_Detail PMD1 WHERE PMD1.billid IN (@BID_tdpz) ORDER BY PMD1.detail_id)
 --从门店手动添加商品特价促销品种剔除部分总部特定选定的锁价品种
 DELETE FROM PM_Detail WHERE billid IN (@BID_tdpz) AND (P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_zbsj)))
+--从会员日 可选限购品种中剔除门店手动添加商品特价促销品种
+DELETE FROM PM_Detail WHERE billid IN (@BID_hyr1) AND (P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_tdpz)))
  
 
 --------------------------------------------------------
