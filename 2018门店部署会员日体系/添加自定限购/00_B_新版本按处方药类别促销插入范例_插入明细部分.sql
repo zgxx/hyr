@@ -1,4 +1,4 @@
---2018年2月12日14:34:40，zgx
+--2018年2月12日15:46:51，zgx
 --加入计划任务，每天自动更新新品种，时间早上8:05开始每隔4小时执行一次
 --ansi编码_添加自定限购
 
@@ -241,7 +241,8 @@ UPDATE PM_Detail SET vipDayQty = 0
 FROM PM_Detail PMD,zgxCxTemp C
 WHERE PMD.p_id = C.P_ID
 AND C.CLASS = 0.85 AND C.type = 1 AND PMD.billid = @BID_hyr85
-AND C.profit_rate >= 0
+--AND C.profit_rate >= 0
+AND C.VIPretailPrice-C.costp > -0.5	--打折后亏5毛以下的
 AND vipDayQty <> 0
 
 --将会员日95折后,正毛利的品种的每人每日限购数量设置为0
@@ -250,7 +251,8 @@ UPDATE PM_Detail SET vipDayQty = 0
 FROM PM_Detail PMD,zgxCxTemp C
 WHERE PMD.p_id = C.P_ID 
 AND C.CLASS = 0.95 AND C.type = 1 AND PMD.billid = @BID_hyr95
-AND C.profit_rate >= 0
+--AND C.profit_rate >= 0
+AND C.VIPretailPrice-C.costp > -0.5	--打折后亏5毛以下的
 AND vipDayQty <> 0
 
 ---------
@@ -260,7 +262,8 @@ UPDATE PM_Detail SET vipDayQty = 2
 FROM PM_Detail PMD,zgxCxTemp C
 WHERE PMD.p_id = C.P_ID
 AND C.CLASS = 0.85 AND C.type = 1 AND PMD.billid = @BID_hyr85
-AND C.profit_rate < 0
+--AND C.profit_rate < 0 
+AND C.VIPretailPrice-C.costp <= -0.5	--打折后亏5毛以上的
 AND vipDayQty <> 2
 
 
@@ -270,7 +273,8 @@ UPDATE PM_Detail SET vipDayQty = 2
 FROM PM_Detail PMD,zgxCxTemp C
 WHERE PMD.p_id = C.P_ID
 AND C.CLASS = 0.95 AND C.type = 1 AND PMD.billid = @BID_hyr95
-AND C.profit_rate < 0
+--AND C.profit_rate < 0
+AND C.VIPretailPrice-C.costp <= -0.5	--打折后亏5毛以上的
 AND vipDayQty <> 2
 
 --更新明细后对手动添加商品的单据的备注加入时间，供参考

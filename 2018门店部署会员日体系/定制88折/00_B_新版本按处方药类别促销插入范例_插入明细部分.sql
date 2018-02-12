@@ -1,9 +1,8 @@
---2018年2月6日10:14:25，zgx
+--2018年2月12日15:46:51，zgx
 --加入计划任务，每天自动更新新品种，时间早上8:05开始每隔4小时执行一次
---ansi编码_添加门店锁价和总部锁价，实体表方法
+--ansi编码_添加自定限购
 
-
---提取数据插入暂存表，为插入促销明细准备
+--插入促销明细，先提取数据插入暂存表
 
 --IF EXISTS (SELECT * FROM tempdb..sysobjects WHERE id = object_id('tempdb..#zgxCxTemp'))	--临时表方法
 --DROP table [dbo].[#zgxCxTemp]
@@ -56,8 +55,8 @@ AND p_id IN (SELECT Product_ID FROM Products WHERE Code IN ('131543'))  --例如复
 SET NOCOUNT ON;
 --获得单据号对应的billid，准备插入促销明细
 DECLARE @BID_hyr1 INT,@BID_hyr88 INT,@BID_hyr95 INT,@BID_hyr98 INT, @BID_fhyr1 INT,@BID_fhyr98 INT,@BID_tdpz INT,@BID_zbsj INT
---SELECT @BID_hyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00020'   --门店版2018 会员日 选定打折品种
-SELECT @BID_hyr1  = 0
+SELECT @BID_hyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00020'   --会员日 可选限购品种,可自行添加限购品种，门店版2018
+--SELECT @BID_hyr1  = 0
 SELECT @BID_hyr88 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00021'	 --门店版2018 会员日 非处方品种88折
 SELECT @BID_hyr95 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00022'	 --门店版2018 会员日 处方药95折
 SELECT @BID_hyr98 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00023'   --门店版2018 会员日 部分品种98折
@@ -168,7 +167,7 @@ SET NOCOUNT OFF;
 --删除会员日体系里，被指定忽略的品种
 DELETE FROM PM_Detail WHERE billid IN (@BID_hyr88,@BID_hyr95,@BID_hyr98) 
 AND (
-  P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr1))   --门店版2018 会员日 选定打折品种
+  P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr1))   --会员日 可选限购品种,可自行添加限购品种，门店版2018
   OR 
   P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_tdpz))   --剔除门店添加的商品特价促销品种
   OR 
@@ -202,6 +201,8 @@ DELETE FROM PM_Detail WHERE billid IN (@BID_tdpz)
 AND detail_id NOT IN  (SELECT TOP 50 detail_id FROM PM_Detail PMD1 WHERE PMD1.billid IN (@BID_tdpz) ORDER BY PMD1.detail_id)
 --从门店手动添加商品特价促销品种剔除部分总部特定选定的锁价品种
 DELETE FROM PM_Detail WHERE billid IN (@BID_tdpz) AND (P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_zbsj)))
+--从会员日 可选限购品种中剔除门店手动添加商品特价促销品种
+DELETE FROM PM_Detail WHERE billid IN (@BID_hyr1) AND (P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_tdpz)))
  
 
 --------------------------------------------------------
@@ -240,7 +241,8 @@ UPDATE PM_Detail SET vipDayQty = 0
 FROM PM_Detail PMD,zgxCxTemp C
 WHERE PMD.p_id = C.P_ID
 AND C.CLASS = 0.88 AND C.type = 1 AND PMD.billid = @BID_hyr88
-AND C.profit_rate >= 0
+--AND C.profit_rate >= 0
+AND C.VIPretailPrice-C.costp > -0.5	--打折后亏5毛以下的
 AND vipDayQty <> 0
 
 --将会员日95折后,正毛利的品种的每人每日限购数量设置为0
@@ -249,7 +251,8 @@ UPDATE PM_Detail SET vipDayQty = 0
 FROM PM_Detail PMD,zgxCxTemp C
 WHERE PMD.p_id = C.P_ID 
 AND C.CLASS = 0.95 AND C.type = 1 AND PMD.billid = @BID_hyr95
-AND C.profit_rate >= 0
+--AND C.profit_rate >= 0
+AND C.VIPretailPrice-C.costp > -0.5	--打折后亏5毛以下的
 AND vipDayQty <> 0
 
 ---------
@@ -259,7 +262,8 @@ UPDATE PM_Detail SET vipDayQty = 2
 FROM PM_Detail PMD,zgxCxTemp C
 WHERE PMD.p_id = C.P_ID
 AND C.CLASS = 0.88 AND C.type = 1 AND PMD.billid = @BID_hyr88
-AND C.profit_rate < 0
+--AND C.profit_rate < 0 
+AND C.VIPretailPrice-C.costp <= -0.5	--打折后亏5毛以上的
 AND vipDayQty <> 2
 
 
@@ -269,7 +273,8 @@ UPDATE PM_Detail SET vipDayQty = 2
 FROM PM_Detail PMD,zgxCxTemp C
 WHERE PMD.p_id = C.P_ID
 AND C.CLASS = 0.95 AND C.type = 1 AND PMD.billid = @BID_hyr95
-AND C.profit_rate < 0
+--AND C.profit_rate < 0
+AND C.VIPretailPrice-C.costp <= -0.5	--打折后亏5毛以上的
 AND vipDayQty <> 2
 
 --更新明细后对手动添加商品的单据的备注加入时间，供参考
