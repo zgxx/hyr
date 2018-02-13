@@ -55,17 +55,17 @@ AND p_id IN (SELECT Product_ID FROM Products WHERE Code IN ('131543'))  --例如复
 SET NOCOUNT ON;
 --获得单据号对应的billid，准备插入促销明细
 DECLARE @BID_hyr1 INT,@BID_hyr85 INT,@BID_hyr95 INT,@BID_hyr98 INT, @BID_fhyr1 INT,@BID_fhyr98 INT,@BID_tdpz INT,@BID_zbsj INT
-SELECT @BID_hyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00020'   --会员日 可选限购品种,可自行添加限购品种，门店版2018
+SELECT @BID_hyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00020'   --2018 会员日 自选限购品种
 --SELECT @BID_hyr1  = 0
-SELECT @BID_hyr85 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00021'	 --门店版2018 会员日 非处方品种85折
-SELECT @BID_hyr95 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00022'	 --门店版2018 会员日 处方药95折
-SELECT @BID_hyr98 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00023'   --门店版2018 会员日 部分品种98折
+SELECT @BID_hyr85 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00021'	 --2018 会员日 非处方品种85折 自动化导入
+SELECT @BID_hyr95 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00022'	 --2018 会员日 处方药95折 自动化导入
+SELECT @BID_hyr98 = billid FROM PM_Index WHERE billnumber = 'CX-180101-00023'   --2018 会员日 部分品种98折 自动化导入
 
---SELECT @BID_fhyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00030'   --门店版2018 非会员日 选定打折品种
+--SELECT @BID_fhyr1  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00030'   --2018 非会员日 选定打折品种
 SELECT @BID_fhyr1  = 0
-SELECT @BID_fhyr98  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00031'   --门店版2018 非会员日 会员98折
+SELECT @BID_fhyr98  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00031'   --2018 非会员日 会员98折 自动化导入
 
-SELECT @BID_tdpz  = billid FROM PM_Index WHERE billnumber = 'CX-180201-00010'   --门店版2018 特定品种手动指定价格，限定50个
+SELECT @BID_tdpz  = billid FROM PM_Index WHERE billnumber = 'CX-180201-00010'   --门店版2018,手动指定价格品种,限定50个,超过自动删除
 
 SELECT @BID_zbsj  = billid FROM PM_Index WHERE billnumber = 'CX-180205-00099'   --总部特定锁价品种，此单据不可修改
 
@@ -167,7 +167,7 @@ SET NOCOUNT OFF;
 --删除会员日体系里，被指定忽略的品种
 DELETE FROM PM_Detail WHERE billid IN (@BID_hyr85,@BID_hyr95,@BID_hyr98) 
 AND (
-  P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr1))   --会员日 可选限购品种,可自行添加限购品种，门店版2018
+  P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr1))   --2018 会员日 自选限购品种
   OR 
   P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_tdpz))   --剔除门店添加的商品特价促销品种
   OR 
@@ -177,7 +177,7 @@ AND (
 --删除非会员日体系里，被指定忽略的品种
 DELETE FROM PM_Detail WHERE billid IN (@BID_fhyr98)
 AND (
-  P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_fhyr1))  --门店版2018 非会员日 选定打折品种
+  P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_fhyr1))  --2018 非会员日 选定打折品种
   OR 
   P_ID IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_tdpz))   --剔除门店添加的商品特价促销品种
   OR 
