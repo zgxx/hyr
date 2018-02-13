@@ -1,5 +1,5 @@
 --2018年2月12日16:19:02
---00_00_单独插入自定限购单据,CX-180101-00020,如果单据号存在，则停止插入
+--00_00_单独插入2018 会员日 自选限购品种单据,CX-180101-00020,如果单据号存在，则停止插入
 DECLARE @BID_hyr01 INT,@DBID INT,@STIME DATETIME,@ETIME DATETIME
 SELECT @BID_hyr01  = billid FROM PM_Index WHERE billnumber = 'CX-180101-00020'   --会员日 自选限购品种 门店版2018
 
@@ -18,7 +18,7 @@ SET @ETIME = '2030-12-31 00:00:00.000'		--此处为活动结束时间
 	enddate,begintime,endtime,weeks,days,RetailBill,SaleBill,VipType,p_id,MinPQty,MinMoney,SumSpeP,SumDisP,ChangeOne,
 	Dts_BillID,Factory,LimitDays,MaxQty,MaxPCount,VipMaxQty,VipMaxPCount)
 	VALUES(
-	'2018-01-01 00:00:00.000','CX-180101-00020',17,2,'会员日 自选限购品种 门店版2018',
+	'2018-01-01 00:00:00.000','CX-180101-00020',17,2,'2018 会员日 自选限购品种',
 	2,'2018-02-16 00:00:00.000',0,@STIME,@ETIME,'1900-01-01 00:00:00.000',
 	'1900-01-01 23:59:59.000','1111111','00000100000000010000000001000000',
 	'1','0','0',0,'0','0','0','0','0','0','','1','0','0','0','0')
