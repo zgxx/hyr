@@ -1,4 +1,4 @@
---2018年2月12日15:46:51，zgx
+--2018年2月26日9:29:07，zgx
 --加入计划任务，每天自动更新新品种，时间早上8:05开始每隔4小时执行一次
 --ansi编码_添加自定限购
 
@@ -159,9 +159,6 @@ AND P.Product_ID NOT IN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr1,@
 ORDER BY MLL
 
 ------------------
-
-
-
 SET NOCOUNT OFF;
 
 --删除会员日体系里，被指定忽略的品种
@@ -211,29 +208,29 @@ DELETE FROM PM_Detail WHERE billid IN (@BID_hyr1) AND (P_ID IN (SELECT p_id FROM
 INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
 SELECT @BID_hyr85,C.P_ID,C.u_id,0,0,C.class,0,1,0,0,0,C.profit_rate,0
 FROM zgxCxTemp C LEFT JOIN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr85)) PMD ON PMD.p_id = C.P_ID
-WHERE C.CLASS = 0.85 AND C.type = 1  AND PMD.p_id IS NULL
+WHERE C.CLASS = 0.85 AND C.type = 1 AND PMD.p_id IS NULL
 
 --会员日 处方药95折
 INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
 SELECT @BID_hyr95,C.P_ID,C.u_id,0,0,C.class,0,1,0,0,0,C.profit_rate,0
 FROM zgxCxTemp C LEFT JOIN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr95)) PMD ON PMD.p_id = C.P_ID
-WHERE C.CLASS = 0.95 AND C.type = 1  AND PMD.p_id IS NULL
+WHERE C.CLASS = 0.95 AND C.type = 1 AND PMD.p_id IS NULL
 
 --会员日 部分品种98折
 INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
 SELECT @BID_hyr98,C.P_ID,C.u_id,0,0,C.class,0,1,0,0,0,C.profit_rate,0
 FROM zgxCxTemp C LEFT JOIN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_hyr98)) PMD ON PMD.p_id = C.P_ID
-WHERE C.CLASS = 0.98 AND C.type = 1  AND PMD.p_id IS NULL
+WHERE C.CLASS = 0.98 AND C.type = 1 AND PMD.p_id IS NULL
 ------
 --非会员日 会员98折
 INSERT INTO PM_Detail (billid,p_id,unitid,UnitIndex,discountprice,discount,maxqty,billminqty,billmaxqty,vipDayQty,vipDayTimes,remark,Dts_Detail_ID)
 SELECT @BID_fhyr98,C.P_ID,C.u_id,0,0,C.class,0,1,0,0,0,C.profit_rate,0
 FROM zgxCxTemp C LEFT JOIN (SELECT p_id FROM PM_Detail WHERE billid IN (@BID_fhyr98)) PMD ON PMD.p_id = C.P_ID
-WHERE C.CLASS = 0.98 AND C.type = 0  AND PMD.p_id IS NULL
+WHERE C.CLASS = 0.98 AND C.type = 0 AND PMD.p_id IS NULL
 
 
 ---------------------------------------
---设置限购
+--开始自动对打折后亏5毛以下的商品设置限购2盒
 
 --将会员日85折后,正毛利的品种的每人每日限购数量设置为0
 UPDATE PM_Detail SET vipDayQty = 0
@@ -255,7 +252,7 @@ AND C.CLASS = 0.95 AND C.type = 1 AND PMD.billid = @BID_hyr95
 AND C.VIPretailPrice-C.costp > -0.5	--打折后亏5毛以下的
 AND vipDayQty <> 0
 
----------
+
 --将会员日85折后,负毛利的品种的每人每日限购数量设置为2
 UPDATE PM_Detail SET vipDayQty = 2
 --SELECT DISTINCT PMD.p_id ,CONVERT(NUMERIC(18,4),(ISNULL(PXMD.retailPrice,0) - ISNULL(PXMD.costp,0))/ISNULL(PXMD.retailPrice,9999)) AS MLL  --毛利率
@@ -266,7 +263,6 @@ AND C.CLASS = 0.85 AND C.type = 1 AND PMD.billid = @BID_hyr85
 AND C.VIPretailPrice-C.costp <= -0.5	--打折后亏5毛以上的
 AND vipDayQty <> 2
 
-
 --将会员日95折后,负毛利的品种的每人每日限购数量设置为2
 UPDATE PM_Detail SET vipDayQty = 2
 --SELECT DISTINCT PMD.p_id ,CONVERT(NUMERIC(18,4),(ISNULL(PXMD.retailPrice,0) - ISNULL(PXMD.costp,0))/ISNULL(PXMD.retailPrice,9999)) AS MLL  --毛利率
@@ -276,6 +272,19 @@ AND C.CLASS = 0.95 AND C.type = 1 AND PMD.billid = @BID_hyr95
 --AND C.profit_rate < 0
 AND C.VIPretailPrice-C.costp <= -0.5	--打折后亏5毛以上的
 AND vipDayQty <> 2
+
+--设置限购代码结束
+--------------------------
+
+--保持总部特定锁价品种的单据始终会被总部最新的刷新
+UPDATE PM_Index SET billdate='2018-02-01 00:00:00.000' WHERE billid = @BID_zbsj
+
+--更新会员日 自选限购品种单据，使折扣率自动化更新
+UPDATE PM_Detail SET discount = ZCT.CLASS
+FROM zgxCxTemp ZCT,PM_Detail PMD
+WHERE ZCT.P_ID = PMD.p_id AND TYPE = 1
+AND PMD.discount <> ZCT.CLASS
+AND billid = BID_hyr1
 
 --更新明细后对手动添加商品的单据的备注加入时间，供参考
 UPDATE PM_Index SET note = CONVERT(VARCHAR(20),GETDATE(),120)+SUBSTRING(note,20,100)
