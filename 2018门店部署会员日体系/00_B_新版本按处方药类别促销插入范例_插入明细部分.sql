@@ -1,6 +1,6 @@
---2018年2月26日9:29:07，zgx
+--2018年2月26日14:22:57，zgx
 --加入计划任务，每天自动更新新品种，时间早上8:05开始每隔4小时执行一次
---ansi编码_添加自定限购
+--ansi编码_添加自定限购单据的自动化折扣
 
 --插入促销明细，先提取数据插入暂存表
 
@@ -280,11 +280,13 @@ AND vipDayQty <> 2
 UPDATE PM_Index SET billdate='2018-02-01 00:00:00.000' WHERE billid = @BID_zbsj
 
 --更新会员日 自选限购品种单据，使折扣率自动化更新
-UPDATE PM_Detail SET discount = ZCT.CLASS
-FROM zgxCxTemp ZCT,PM_Detail PMD
-WHERE ZCT.P_ID = PMD.p_id AND TYPE = 1
-AND PMD.discount <> ZCT.CLASS
-AND billid = BID_hyr1
+UPDATE PM_Detail SET discount = A.DIS
+FROM PM_Detail PMD,
+(SELECT PMD.p_id,CASE WHEN P.OTCFlag > 0 THEN 0.95 
+ WHEN P.Parent_id LIKE '000004000001%' THEN 1 ELSE 0.85 END AS DIS 
+ FROM PM_Detail PMD,Products P WHERE PMD.p_id = P.Product_ID AND PMD.billid = @BID_hyr1) AS A
+WHERE PMD.p_id = A.p_id AND PMD.discount <> A.DIS
+AND PMD.billid = @BID_hyr1
 
 --更新明细后对手动添加商品的单据的备注加入时间，供参考
 UPDATE PM_Index SET note = CONVERT(VARCHAR(20),GETDATE(),120)+SUBSTRING(note,20,100)

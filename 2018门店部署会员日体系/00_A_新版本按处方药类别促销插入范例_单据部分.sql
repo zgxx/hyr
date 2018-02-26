@@ -27,7 +27,7 @@ SELECT 0.95,'00022','2018 会员日 处方药95折 自动化导入',1 UNION ALL
 SELECT 0.98,'00023','2018 会员日 部分品种98折 自动化导入',1 UNION ALL 
 --SELECT 0.98,'2018 非会员日 选定打折品种',0 UNION ALL 
 SELECT 0.98,'00031','2018 非会员日 会员98折 自动化导入',0 UNION ALL 
-SELECT 1.00,'00010',CONVERT(VARCHAR(30),GETDATE(),120)+',门店版2018,手动指定价格品种,限定50个,超过自动删除',5	--此行另外用途
+SELECT 1.00,'00010',CONVERT(VARCHAR(30),GETDATE(),120)+'，门店版2018，会员日手动指定价格品种,限定50个,超过自动删除',5	--此行另外用途
 
 --SELECT * FROM ##CxZKTemp
 
