@@ -1,6 +1,6 @@
---2018年2月26日9:29:07，zgx
+--2018年2月26日14:22:57，zgx
 --加入计划任务，每天自动更新新品种，时间早上8:05开始每隔4小时执行一次
---ansi编码_添加自定限购
+--ansi编码_添加自定限购单据的自动化折扣
 
 --插入促销明细，先提取数据插入暂存表
 
@@ -231,7 +231,7 @@ WHERE C.CLASS = 0.98 AND C.type = 0 AND PMD.p_id IS NULL
 
 ---------------------------------------
 --开始自动对打折后亏5毛以下的商品设置限购2盒
-
+/*
 --将会员日88折后,正毛利的品种的每人每日限购数量设置为0
 UPDATE PM_Detail SET vipDayQty = 0
 --SELECT DISTINCT PMD.p_id ,CONVERT(NUMERIC(18,4),(ISNULL(PXMD.retailPrice,0) - ISNULL(PXMD.costp,0))/ISNULL(PXMD.retailPrice,9999)) AS MLL  --毛利率
@@ -274,6 +274,7 @@ AND C.VIPretailPrice-C.costp <= -0.5	--打折后亏5毛以上的
 AND vipDayQty <> 2
 
 --设置限购代码结束
+*/
 --------------------------
 
 --保持总部特定锁价品种的单据始终会被总部最新的刷新

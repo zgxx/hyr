@@ -231,7 +231,7 @@ WHERE C.CLASS = 0.98 AND C.type = 0 AND PMD.p_id IS NULL
 
 ---------------------------------------
 --开始自动对打折后亏5毛以下的商品设置限购2盒
-
+/*
 --将会员日85折后,正毛利的品种的每人每日限购数量设置为0
 UPDATE PM_Detail SET vipDayQty = 0
 --SELECT DISTINCT PMD.p_id ,CONVERT(NUMERIC(18,4),(ISNULL(PXMD.retailPrice,0) - ISNULL(PXMD.costp,0))/ISNULL(PXMD.retailPrice,9999)) AS MLL  --毛利率
@@ -274,6 +274,7 @@ AND C.VIPretailPrice-C.costp <= -0.5	--打折后亏5毛以上的
 AND vipDayQty <> 2
 
 --设置限购代码结束
+*/
 --------------------------
 
 --保持总部特定锁价品种的单据始终会被总部最新的刷新
