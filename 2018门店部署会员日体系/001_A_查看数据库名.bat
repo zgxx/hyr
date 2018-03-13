@@ -17,7 +17,7 @@ copy /y 00_门店查询会员日负毛利品种，以及建议零售价.xlsx D:\成都海翔软件有限公司
 
 ECHO 调用脚本D:\TempFolderZGX\AutoEXC_name.sql ╮(╯_╰)╭
 ::-U 数据库登陆名，-P 密码，在下面修改
-osql -S 127.0.0.1 -d Master -U sa -P Hx789789 -i D:\TempFolderZGX\AutoEXC_name.sql
+osql -S 127.0.0.1 -d Master -U sa -P xxx -i D:\TempFolderZGX\AutoEXC_name.sql
 
 start D:\成都海翔软件有限公司\海翔数据库名.txt
 Exit

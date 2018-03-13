@@ -1,2 +1,0 @@
-﻿chown -R me:me /home/me/devext/hyr
-chmod -R ug+rwx,o+rx-w /home/me/devext/hyr
